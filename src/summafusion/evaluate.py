@@ -59,15 +59,12 @@ parser.add_argument('--encode_position', type=bool, default=True)
 parser.add_argument('--full_position_encoding', type=bool, default=False)
 parser.add_argument('--position_symbol', type=str, default="CAND_")
 parser.add_argument('--encode_generation_method', type=bool, default=False)
-parser.add_argument('--candidate_ordering', type=str, default="")
-parser.add_argument('--metric_idx', type=int, default=0)
 # subsetting
 parser.add_argument('--n_candidates_to_use', type=int, default=15)
 # subsampling
 parser.add_argument('--source_dropout', type=bool, default=False)
 parser.add_argument('--source_dropout_prob', type=float, default=0.2)
 parser.add_argument('--source_dropout_at_inference', type=bool, default=False)
-parser.add_argument('--cand_subsampling_method', type=str, default="")  # in ["", "random", "top"]
 parser.add_argument('--n_subsample_low', type=int, default=2)
 parser.add_argument('--n_subsample_high', type=int, default=15)
 parser.add_argument('--subsample_at_inference', type=bool, default=False)
@@ -80,8 +77,6 @@ parser.add_argument('--model', type=str, default="facebook/bart-large")
 parser.add_argument('--model_type', type=str, default="bart_source_5b")
 parser.add_argument('--cache_dir', type=str, default=root + "hf_models/bart-large/")
 parser.add_argument('--hidden_size', type=int, default=1024)  # 768 / 1024
-parser.add_argument('--non_linear_repres', type=bool, default=True)
-parser.add_argument('--joint_pos_embeds', type=bool, default=False) # whether to have positional embeddings alltogether for all canddiate (model 5b/5c)
 # loss
 parser.add_argument('--manual_loss', type=bool, default=True)
 parser.add_argument('--weight_new_tokens', type=bool, default=False)
@@ -122,7 +117,6 @@ parser.add_argument('--length_penalty', type=float, default=1.0)
 # evaluation
 parser.add_argument('--stemmer', type=bool, default=True)
 parser.add_argument('--n_show_summaries', type=int, default=0)
-parser.add_argument('--rouge_to_use', type=str, default="rouge_score")  # in ["rouge_score", "rouge"]
 
 # evaluation aspects
 parser.add_argument('--evaluate_candidates_abstractiveness', type=bool, default=True)
@@ -137,7 +131,6 @@ parser.add_argument('--evaluate_break_oracle', type=bool, default=False)
 parser.add_argument('--evaluate_ablation_candidates', type=bool, default=False)
 parser.add_argument('--n_ablation_candidates', type=list, default=[0, 1, 3, 5, 10, 15])
 parser.add_argument('--evaluate_without_source', type=bool, default=False)
-parser.add_argument('--evaluate_cross_attn_weights', type=bool, default=False)
 
 args = parser.parse_args()
 args.n_tasks = len(args.scoring_methods)

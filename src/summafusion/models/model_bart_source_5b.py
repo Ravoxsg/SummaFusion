@@ -132,11 +132,6 @@ class BartDecoderLayerSource5b(nn.Module):
         self.fc2 = nn.Linear(config.decoder_ffn_dim, self.embed_dim)
         self.final_layer_norm = nn.LayerNorm(self.embed_dim)
 
-        self.cross_attn_weights = []
-        self.cross_attn_weights.append([])
-        for _ in range(self.args.n_candidates_to_use):
-            self.cross_attn_weights.append([])
-
     def forward(
         self,
         hidden_states: torch.Tensor,
@@ -200,18 +195,6 @@ class BartDecoderLayerSource5b(nn.Module):
                 past_key_value=cross_attn_past_key_value,
                 output_attentions=True,
             )
-            if self.args.evaluate_cross_attn_weights:
-                weights = cross_attn_weights[:,:,0,:].detach().cpu().numpy()
-                weights = weights.reshape((weights.shape[0] * weights.shape[1], weights.shape[2]))
-                # source
-                src_weights = np.mean(np.sum(weights[:, :self.args.max_source_length], axis = 1), 0)
-                self.cross_attn_weights[0].append(src_weights)
-                # candidates
-                for k in range(self.args.n_candidates_to_use):
-                    low = self.args.max_source_length + k * self.args.max_candidate_length
-                    high = self.args.max_source_length + (k + 1) * self.args.max_candidate_length
-                    cand_weights = np.mean(np.sum(weights[:, low:high], axis = 1), 0)
-                    self.cross_attn_weights[k+1].append(cand_weights)
             hidden_states = nn.functional.dropout(hidden_states, p=self.dropout, training=self.training)
             hidden_states = residual + hidden_states
             hidden_states = self.encoder_attn_layer_norm(hidden_states)
@@ -361,9 +344,6 @@ class BartEncoderSource5b(BartPretrainedModel):
         if inputs_embeds is None:
             inputs_embeds = self.embed_tokens(input_ids) * self.embed_scale
 
-        if self.args.joint_pos_embeds:
-            embed_pos = self.embed_positions(input_shape)
-
         cls_outputs = None
         if candidates == True:
             #candidate_size = int(inputs_embeds.shape[1] / self.args.n_candidates_to_use)
@@ -378,10 +358,7 @@ class BartEncoderSource5b(BartPretrainedModel):
                 start = j * candidate_size
                 end = (j+1) * candidate_size
 
-                if self.args.joint_pos_embeds:
-                    embed_pos_j = embed_pos[start:end, :]
-                else:
-                    embed_pos_j = self.embed_positions((inputs_embeds.shape[0], candidate_size))
+                embed_pos_j = self.embed_positions((inputs_embeds.shape[0], candidate_size))
                 hidden_states = inputs_embeds[:, start:end, :] + embed_pos_j
                 hidden_states = self.layernorm_embedding(hidden_states)
                 hidden_states = nn.functional.dropout(hidden_states, p=self.dropout, training=self.training)

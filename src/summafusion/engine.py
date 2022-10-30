@@ -63,7 +63,7 @@ def train(total_steps, epoch, train_loader, val_loader, tokenizer, model, optimi
     model.train()
 
     just_evaluated = False
-    losses, temp_losses, temp_cls_losses, temp_untouched_losses, temp_seen_losses, temp_seen_fracs, temp_new_losses = [], [], [], [], [], [], []
+    losses, temp_losses, temp_cls_losses = [], [], []
     scaler = torch.cuda.amp.GradScaler()
     for idx, batch in tqdm(enumerate(train_loader)):
         mode = batch["mode"]
@@ -86,18 +86,10 @@ def train(total_steps, epoch, train_loader, val_loader, tokenizer, model, optimi
 
         loss = outputs["loss"] 
         cls_loss = outputs["cls_loss"]
-        untouched_loss = outputs["untouched_loss"]
-        seen_loss = outputs["seen_loss"]
-        seen_frac = outputs["seen_frac"]
-        new_loss = outputs["new_loss"]
 
         losses.append(loss.item())
         temp_losses.append(loss.item())
         temp_cls_losses.append(cls_loss.item())
-        temp_untouched_losses.append(untouched_loss.item())
-        temp_seen_losses.append(seen_loss.item())
-        temp_seen_fracs.append(seen_frac)
-        temp_new_losses.append(new_loss.item())
 
         loss /= args.gradient_accumulation_steps
         if args.fp16:
@@ -129,17 +121,13 @@ def train(total_steps, epoch, train_loader, val_loader, tokenizer, model, optimi
             # Training performance
             mean_loss = np.mean(temp_losses)
             mean_cls_loss = np.mean(temp_cls_losses)
-            mean_untouched_loss = np.mean(temp_untouched_losses)
-            mean_seen_loss = np.mean(temp_seen_losses)
-            mean_seen_frac = np.mean(temp_seen_fracs)
-            mean_new_loss = np.mean(temp_new_losses)
             print("\n\nIter: {} (epoch {} batch {})".format(
                 total_steps, epoch, idx + 1
             ))
-            print("TRAINING loss: {:.4f}, CLS loss: {:.4f}, untouched loss: {:.4f}, seen loss: {:.4f}, seen frac (%): {:.4f}, new loss: {:.4f}".format(
-                mean_loss, mean_cls_loss, mean_untouched_loss, mean_seen_loss, mean_seen_frac, mean_new_loss
+            print("TRAINING loss: {:.4f}, CLS loss: {:.4f}".format(
+                mean_loss, mean_cls_loss
             ))
-            temp_losses, temp_cls_losses, temp_untouched_losses, temp_seen_losses, temp_seen_fracs, temp_new_losses = [], [], [], [], [], []
+            temp_losses, temp_cls_losses = [], []
 
             # Validation performance
             _, _, _, val_summaries, val_labels  = validate(val_loader, tokenizer, model, args)

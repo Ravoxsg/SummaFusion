@@ -156,21 +156,6 @@ class AbstractiveFusionDataset:
 
     def candidates_ordering(self, candidates, scores):
         idx = list(range(len(candidates)))
-        if self.args.candidate_ordering == "oracle":
-            if self.args.metric_idx == -1:
-                thresh = len(scores)
-                if len(scores) > len(self.args.scoring_methods):
-                    thresh -= 1
-                scores_for_idx = np.mean(np.concatenate([np.expand_dims(np.array(x), 1) for x in scores[:thresh]], 1), 1)
-            else:
-                scores_for_idx = scores[self.args.metric_idx]
-            idx = np.argsort(scores_for_idx)[::-1]
-        elif self.args.candidate_ordering == "shuffle":
-            p = np.random.permutation(len(candidates))
-            idx = list(p)
-        elif self.args.candidate_ordering == "sr":
-            scores_for_idx = scores[-1]
-            idx = np.argsort(scores_for_idx)[::-1]
         candidates = [candidates[i] for i in idx]
         new_scores = []
         for j in range(len(scores)):

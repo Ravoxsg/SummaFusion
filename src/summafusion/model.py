@@ -28,9 +28,7 @@ class ModelAbstractiveFusion(nn.Module):
             output, cls_outputs = self.model(
                 input_ids = cand_ids, attention_mask = cand_mask, labels = labels, output_hidden_states = False
             )
-        overall_loss, untouched_loss, seen_loss, seen_frac, new_loss, new_frac = self.get_loss(
-            cand_ids, output, labels
-        )
+        overall_loss = self.get_loss(output)
 
         cls_loss = torch.tensor(-1).to(self.args.device)
         cls_preds = -1 * torch.ones(cls_labels.shape).to(self.args.device)
@@ -47,11 +45,6 @@ class ModelAbstractiveFusion(nn.Module):
         outputs = {
             "loss": overall_loss,
             "cls_loss": cls_loss,
-            "untouched_loss": untouched_loss,
-            "seen_loss": seen_loss,
-            "seen_frac": seen_frac,
-            "new_loss": new_loss,
-            "new_frac": new_frac,
             "logits": output["logits"],
             "cls_labels": cls_labels,
             "cls_preds": cls_preds
@@ -60,51 +53,9 @@ class ModelAbstractiveFusion(nn.Module):
         return outputs
 
 
-    def get_loss(self, cand_input_ids, output, labels):
-        if self.args.manual_loss:
-            overall_loss = torch.tensor(0.0).to(self.model.device)
-            untouched_loss = torch.tensor(0.0).to(self.model.device)
-            seen_loss = torch.tensor(0.0).to(self.model.device)
-            new_loss = torch.tensor(0.0).to(self.model.device)
-            seen_count = 0
-            new_count = 0
-            prob_outputs = torch.softmax(output["logits"], dim = 2)
-            for i in range(labels.shape[0]):
-                for j in range(labels.shape[1]):
-                    loss_i_j = -torch.log(prob_outputs[i, j, labels[i, j]])
-                    untouched_loss += loss_i_j
-                    # seen vs new tokens 
-                    if not(labels[i, j] in cand_input_ids[i]):
-                        new_count += 1
-                        new_loss += loss_i_j
-                        if self.args.weight_new_tokens:
-                            loss_i_j *= self.args.new_tokens_weight
-                    else:
-                        seen_count += 1
-                        seen_loss += loss_i_j
-                    # long sequences 
-                    if self.args.weight_long_sequences:
-                        weight = 1 + self.args.long_sequences_weight * ((j + 1) / labels.shape[1])
-                        loss_i_j *= weight
-                    overall_loss += loss_i_j
-            overall_loss /= (labels.shape[0] * labels.shape[1])
-            untouched_loss /= (labels.shape[0] * labels.shape[1])
-            if seen_count > 0:
-                seen_loss /= seen_count
-            seen_frac = 100 * seen_count / (labels.shape[0] * labels.shape[1])
-            if new_count > 0:
-                new_loss /= new_count
-            new_frac = 100 * new_count / (labels.shape[0] * labels.shape[1])
-        else:
-            overall_loss = output["loss"]
-            untouched_loss = output["loss"]
-            seen_loss = output["loss"]
-            new_loss = output["loss"]
-            seen_frac = 100
-            new_frac = 100
+    def get_loss(self, output):
+        overall_loss = output["loss"]
         overall_loss = torch.nan_to_num(overall_loss)
-        seen_loss = torch.nan_to_num(seen_loss)
-        new_loss = torch.nan_to_num(new_loss)
 
-        return overall_loss, untouched_loss, seen_loss, seen_frac, new_loss, new_frac
+        return overall_loss
 
