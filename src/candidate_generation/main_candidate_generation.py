@@ -85,54 +85,54 @@ parser.add_argument('--hidden_size', type = int, default = 768) # 768
 parser.add_argument('--cache_dir', type = str,
                     default = "../../../hf_models/pegasus-large/")
 parser.add_argument('--load_model', type = bool, default = True)
-parser.add_argument('--load_model_path', type = tuple,
-                    default = ("pegasus_samsum_train_100_seed_42_1", 90),
+parser.add_argument('--load_model_path', type = str,
+                    default = "pegasus_samsum_train_100_seed_42_1+90",
                     choices = [
                         # XSum
                         # full-shot
-                        ("pegasus_xsum_first_half_shuffled_2", 1500), ("pegasus_xsum_second_half_shuffled_2", 1500),
+                        "pegasus_xsum_first_half_shuffled_2+1500", "pegasus_xsum_second_half_shuffled_2+1500",
                         ### 10-shot
-                        ("pegasus_xsum_first_half_train_10_seed_42_shuffled_1", 15), ("pegasus_xsum_second_half_train_10_seed_42_shuffled_1", 15), ("pegasus_xsum_train_10_seed_42_1", 30),
-                        ("pegasus_xsum_first_half_train_10_seed_43_shuffled_1", 15), ("pegasus_xsum_second_half_train_10_seed_43_shuffled_1", 15), ("pegasus_xsum_train_10_seed_43_1", 30),
-                        ("pegasus_xsum_first_half_train_10_seed_44_shuffled_1", 15), ("pegasus_xsum_second_half_train_10_seed_44_shuffled_1", 15), ("pegasus_xsum_train_10_seed_44_1", 30),
+                        "pegasus_xsum_first_half_train_10_seed_42_shuffled_1+15", "pegasus_xsum_second_half_train_10_seed_42_shuffled_1+15", "pegasus_xsum_train_10_seed_42_1+30",
+                        "pegasus_xsum_first_half_train_10_seed_43_shuffled_1+15", "pegasus_xsum_second_half_train_10_seed_43_shuffled_1+15", "pegasus_xsum_train_10_seed_43_1+30",
+                        "pegasus_xsum_first_half_train_10_seed_44_shuffled_1+15", "pegasus_xsum_second_half_train_10_seed_44_shuffled_1+15", "pegasus_xsum_train_10_seed_44_1+30",
                         ### 100-shot
-                        ("pegasus_xsum_first_half_train_100_seed_42_shuffled_1", 40), ("pegasus_xsum_second_half_train_100_seed_42_shuffled_1", 40), ("pegasus_xsum_train_100_seed_42_1", 90),
-                        ("pegasus_xsum_first_half_train_100_seed_43_shuffled_1", 40), ("pegasus_xsum_second_half_train_100_seed_43_shuffled_1", 40), ("pegasus_xsum_train_100_seed_43_1", 90),
-                        ("pegasus_xsum_first_half_train_100_seed_44_shuffled_1", 40), ("pegasus_xsum_second_half_train_100_seed_44_shuffled_1", 40), ("pegasus_xsum_train_100_seed_44_1", 90),
+                        "pegasus_xsum_first_half_train_100_seed_42_shuffled_1+40", "pegasus_xsum_second_half_train_100_seed_42_shuffled_1+40", "pegasus_xsum_train_100_seed_42_1+90",
+                        "pegasus_xsum_first_half_train_100_seed_43_shuffled_1+40", "pegasus_xsum_second_half_train_100_seed_43_shuffled_1+40", "pegasus_xsum_train_100_seed_43_1+90",
+                        "pegasus_xsum_first_half_train_100_seed_44_shuffled_1+40", "pegasus_xsum_second_half_train_100_seed_44_shuffled_1+40", "pegasus_xsum_train_100_seed_44_1+90",
                         ### 1000-shot
-                        ("pegasus_xsum_first_half_train_1000_seed_42_shuffled_1", 100), ("pegasus_xsum_second_half_train_1000_seed_42_shuffled_1", 100), ("pegasus_xsum_train_1000_seed_42_1", 180),
-                        ("pegasus_xsum_first_half_train_1000_seed_43_shuffled_1", 100), ("pegasus_xsum_second_half_train_1000_seed_43_shuffled_1", 100), ("pegasus_xsum_train_1000_seed_43_1", 180),
-                        ("pegasus_xsum_first_half_train_1000_seed_44_shuffled_1", 100), ("pegasus_xsum_second_half_train_1000_seed_44_shuffled_1", 100), ("pegasus_xsum_train_1000_seed_44_1", 180),
+                        "pegasus_xsum_first_half_train_1000_seed_42_shuffled_1+100", "pegasus_xsum_second_half_train_1000_seed_42_shuffled_1+100", "pegasus_xsum_train_1000_seed_42_1+180",
+                        "pegasus_xsum_first_half_train_1000_seed_43_shuffled_1+100", "pegasus_xsum_second_half_train_1000_seed_43_shuffled_1+100", "pegasus_xsum_train_1000_seed_43_1+180",
+                        "pegasus_xsum_first_half_train_1000_seed_44_shuffled_1+100", "pegasus_xsum_second_half_train_1000_seed_44_shuffled_1+100", "pegasus_xsum_train_1000_seed_44_1+180",
                         # Reddit
                         # full-shot
-                        ("pegasus_reddit_first_half_shuffled_2", 900), ("pegasus_reddit_second_half_shuffled_2", 700), ("pegasus_reddit_train_4", 1250),
+                        "pegasus_reddit_first_half_shuffled_2+900", "pegasus_reddit_second_half_shuffled_2+700", "pegasus_reddit_train_4+1250",
                         ### 10-shot
-                        ("pegasus_reddit_first_half_train_10_seed_42_shuffled_1", 14), ("pegasus_reddit_second_half_train_10_seed_42_shuffled_1", 14), ("pegasus_reddit_train_10_seed_42_1", 30),
-                        ("pegasus_reddit_first_half_train_10_seed_43_shuffled_1", 14), ("pegasus_reddit_second_half_train_10_seed_43_shuffled_1", 14), ("pegasus_reddit_train_10_seed_43_1", 30),
-                        ("pegasus_reddit_first_half_train_10_seed_44_shuffled_1", 14), ("pegasus_reddit_second_half_train_10_seed_44_shuffled_1", 14), ("pegasus_reddit_train_10_seed_44_1", 30),
+                        "pegasus_reddit_first_half_train_10_seed_42_shuffled_1+14", "pegasus_reddit_second_half_train_10_seed_42_shuffled_1+14", "pegasus_reddit_train_10_seed_42_1+30",
+                        "pegasus_reddit_first_half_train_10_seed_43_shuffled_1+14", "pegasus_reddit_second_half_train_10_seed_43_shuffled_1+14", "pegasus_reddit_train_10_seed_43_1+30",
+                        "pegasus_reddit_first_half_train_10_seed_44_shuffled_1+14", "pegasus_reddit_second_half_train_10_seed_44_shuffled_1+14", "pegasus_reddit_train_10_seed_44_1+30",
                         ### 100-shot
-                        ("pegasus_reddit_first_half_train_100_seed_42_shuffled_1", 40), ("pegasus_reddit_second_half_train_100_seed_42_shuffled_1", 40), ("pegasus_reddit_train_100_seed_42_1", 90),
-                        ("pegasus_reddit_first_half_train_100_seed_43_shuffled_1", 40), ("pegasus_reddit_second_half_train_100_seed_43_shuffled_1", 40), ("pegasus_reddit_train_100_seed_43_1", 90),
-                        ("pegasus_reddit_first_half_train_100_seed_44_shuffled_1", 40), ("pegasus_reddit_second_half_train_100_seed_44_shuffled_1", 40), ("pegasus_reddit_train_100_seed_44_1", 90),
+                        "pegasus_reddit_first_half_train_100_seed_42_shuffled_1+40", "pegasus_reddit_second_half_train_100_seed_42_shuffled_1+40", "pegasus_reddit_train_100_seed_42_1+90",
+                        "pegasus_reddit_first_half_train_100_seed_43_shuffled_1+40", "pegasus_reddit_second_half_train_100_seed_43_shuffled_1+40", "pegasus_reddit_train_100_seed_43_1+90",
+                        "pegasus_reddit_first_half_train_100_seed_44_shuffled_1+40", "pegasus_reddit_second_half_train_100_seed_44_shuffled_1+40", "pegasus_reddit_train_100_seed_44_1+90",
                         ### 1000-shot
-                        ("pegasus_reddit_first_half_train_1000_seed_42_shuffled_1", 100), ("pegasus_reddit_second_half_train_1000_seed_42_shuffled_1", 100), ("pegasus_reddit_train_1000_seed_42_1", 180),
-                        ("pegasus_reddit_first_half_train_1000_seed_43_shuffled_1", 100), ("pegasus_reddit_second_half_train_1000_seed_43_shuffled_1", 100), ("pegasus_reddit_train_1000_seed_43_1", 180),
-                        ("pegasus_reddit_first_half_train_1000_seed_44_shuffled_1", 100), ("pegasus_reddit_second_half_train_1000_seed_44_shuffled_1", 100), ("pegasus_reddit_train_1000_seed_44_1", 180),
+                        "pegasus_reddit_first_half_train_1000_seed_42_shuffled_1+100", "pegasus_reddit_second_half_train_1000_seed_42_shuffled_1+100", "pegasus_reddit_train_1000_seed_42_1+180",
+                        "pegasus_reddit_first_half_train_1000_seed_43_shuffled_1+100", "pegasus_reddit_second_half_train_1000_seed_43_shuffled_1+100", "pegasus_reddit_train_1000_seed_43_1+180",
+                        "pegasus_reddit_first_half_train_1000_seed_44_shuffled_1+100", "pegasus_reddit_second_half_train_1000_seed_44_shuffled_1+100", "pegasus_reddit_train_1000_seed_44_1+180",
                         # SAMSum
                         # full-shot
-                        ("pegasus_samsum_first_half_shuffled_2", 550), ("pegasus_samsum_second_half_shuffled_2", 400), ("pegasus_samsum_train_4", 1200),
+                        "pegasus_samsum_first_half_shuffled_2+550", "pegasus_samsum_second_half_shuffled_2+400", "pegasus_samsum_train_4+1200",
                         ### 10-shot
-                        ("pegasus_samsum_first_half_train_10_seed_42_shuffled_1", 15), ("pegasus_samsum_second_half_train_10_seed_42_shuffled_1", 15), ("pegasus_samsum_train_10_seed_42_1", 30),
-                        ("pegasus_samsum_first_half_train_10_seed_43_shuffled_1", 15), ("pegasus_samsum_second_half_train_10_seed_43_shuffled_1", 15), ("pegasus_samsum_train_10_seed_43_1", 30),
-                        ("pegasus_samsum_first_half_train_10_seed_44_shuffled_1", 15), ("pegasus_samsum_second_half_train_10_seed_44_shuffled_1", 15), ("pegasus_samsum_train_10_seed_44_1", 30),
+                        "pegasus_samsum_first_half_train_10_seed_42_shuffled_1+15", "pegasus_samsum_second_half_train_10_seed_42_shuffled_1+15", "pegasus_samsum_train_10_seed_42_1+30",
+                        "pegasus_samsum_first_half_train_10_seed_43_shuffled_1+15", "pegasus_samsum_second_half_train_10_seed_43_shuffled_1+15", "pegasus_samsum_train_10_seed_43_1+30",
+                        "pegasus_samsum_first_half_train_10_seed_44_shuffled_1+15", "pegasus_samsum_second_half_train_10_seed_44_shuffled_1+15", "pegasus_samsum_train_10_seed_44_1+30",
                         ### 100-shot
-                        ("pegasus_samsum_first_half_train_100_seed_42_shuffled_1", 40), ("pegasus_samsum_second_half_train_100_seed_42_shuffled_1", 40), ("pegasus_samsum_train_100_seed_42_1", 90),
-                        ("pegasus_samsum_first_half_train_100_seed_43_shuffled_1", 40), ("pegasus_samsum_second_half_train_100_seed_43_shuffled_1", 40), ("pegasus_samsum_train_100_seed_43_1", 90),
-                        ("pegasus_samsum_first_half_train_100_seed_44_shuffled_1", 40), ("pegasus_samsum_second_half_train_100_seed_44_shuffled_1", 40), ("pegasus_samsum_train_100_seed_44_1", 90),
+                        "pegasus_samsum_first_half_train_100_seed_42_shuffled_1+40", "pegasus_samsum_second_half_train_100_seed_42_shuffled_1+40", "pegasus_samsum_train_100_seed_42_1+90",
+                        "pegasus_samsum_first_half_train_100_seed_43_shuffled_1+40", "pegasus_samsum_second_half_train_100_seed_43_shuffled_1+40", "pegasus_samsum_train_100_seed_43_1+90",
+                        "pegasus_samsum_first_half_train_100_seed_44_shuffled_1+40", "pegasus_samsum_second_half_train_100_seed_44_shuffled_1+40", "pegasus_samsum_train_100_seed_44_190",
                         ### 1000-shot
-                        ("pegasus_samsum_first_half_train_1000_seed_42_shuffled_1", 100), ("pegasus_samsum_second_half_train_1000_seed_42_shuffled_1", 100), ("pegasus_samsum_train_1000_seed_42_1", 190),
-                        ("pegasus_samsum_first_half_train_1000_seed_43_shuffled_1", 100), ("pegasus_samsum_second_half_train_1000_seed_43_shuffled_1", 100), ("pegasus_samsum_train_1000_seed_43_1", 180),
-                        ("pegasus_samsum_first_half_train_1000_seed_44_shuffled_1", 100), ("pegasus_samsum_second_half_train_1000_seed_44_shuffled_1", 100), ("pegasus_samsum_train_1000_seed_44_1", 180),
+                        "pegasus_samsum_first_half_train_1000_seed_42_shuffled_1+100", "pegasus_samsum_second_half_train_1000_seed_42_shuffled_1+100", "pegasus_samsum_train_1000_seed_42_1+190",
+                        "pegasus_samsum_first_half_train_1000_seed_43_shuffled_1+100", "pegasus_samsum_second_half_train_1000_seed_43_shuffled_1+100", "pegasus_samsum_train_1000_seed_43_1+180",
+                        "pegasus_samsum_first_half_train_1000_seed_44_shuffled_1+100", "pegasus_samsum_second_half_train_1000_seed_44_shuffled_1+100", "pegasus_samsum_train_1000_seed_44_1+180",
                     ]) # todo: change to where you saved the finetuned checkpoint
 
 # summary generation
@@ -174,6 +174,8 @@ parser.add_argument('--eval_new_ngram', type = bool, default = True)
 parser.add_argument('--eval_rouge_text', type = bool, default = False)
 
 args = parser.parse_args()
+
+args.load_model_path = (args.load_model_path.split("+")[0], args.load_model_path.split("+")[1])
 
 dataset_names = ["xsum", "reddit", "samsum"]
 highlights = [False, False, False]
