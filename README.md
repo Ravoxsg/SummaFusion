@@ -25,7 +25,7 @@ pip install -r requirements.txt
 We use HuggingFace datasets library to access and save each dataset.
 We save it as .txt file for the sources, and another one for the summaries, with 1 data point per line.
 
-For instance to download and save SAMSum (default in the files):
+For instance to download and save SAMSum (default code):
 ```
 cd src/candidate_generation/
 bash dataset.sh
@@ -42,7 +42,7 @@ For the **test** set, size is **4,222** and the first data point summary is:
 
 If you want to work in few-shot, you need to prepare the (train, val) few-shot pairs.
 
-For instance on SAMSum 100-shot:
+For instance on SAMSum 100-shot (default code):
 ```
 bash few_shot.sh
 ```
@@ -54,7 +54,7 @@ SummaFusion takes as input a set of summary candidates from a given sequence-to-
 
 You need such a fine-tuned checkpoint before generating the candidates. 
 
-For instance on SAMSum 100-shot validation set:
+For instance on SAMSum 100-shot validation set (default code):
 ```
 CUDA_VISIBLE_DEVICES=0 bash candidate_generation.sh
 ```
@@ -63,7 +63,7 @@ Generating summary candidates should take a few minutes in few-shot, and up to a
 ### 2 - Score the candidates
 As part of SummaFusion, we train a classifier on the summary candidates and thus need candidate-level information.
 
-For instance to score candidates on SAMSum 100-shot validation set with ROUGE-1/2/L:
+For instance to score candidates on SAMSum 100-shot validation set with ROUGE-1/2/L (default code):
 ```
 bash scores.sh
 ```
@@ -88,12 +88,12 @@ src/summafusion/saved_models/{dataset}/
 where {dataset} is in {xsum,reddit,samsum} corresponds to the dataset name. 
 
 ### 4 - Run SummaFusion
-For instance, to run SummaFusion on SAMSum 100-shot validation set:
+For instance, to run SummaFusion on SAMSum 100-shot validation set (default code):
 ```
 cd ../summareranker/
 CUDA_VISIBLE_DEVICES=0 bash evaluate.sh
 ```
-Make sure that the argument --load_model_path points to where you placed the SummaFusion checkpoint. 
+Make sure that the argument --load_model_path points to the name of the checkpoint you want to use. 
 
 ## Citation
 If you find our paper or this project helps your research, please kindly consider citing our paper in your publication.   
