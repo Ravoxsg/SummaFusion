@@ -84,3 +84,15 @@ cd ../summareranker/
 CUDA_VISIBLE_DEVICES=0 bash evaluate.sh
 ```
 Make sure that the argument --load_model_path points to where you placed the SummaFusion checkpoint. 
+
+## Citation
+If you find our paper or this project helps your research, please kindly consider citing our paper in your publication.   
+```
+@article{ravaut2022towards,
+  title={Towards Summary Candidates Fusion},
+  author={Ravaut, Mathieu and Joty, Shafiq and Chen, Nancy F},
+  journal={arXiv preprint arXiv:2210.08779},
+  year={2022}
+}
+
+```
