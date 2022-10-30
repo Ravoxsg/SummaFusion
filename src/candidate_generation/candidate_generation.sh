@@ -1,11 +1,11 @@
 python main_candidate_generation.py \
---dataset reddit \
+--dataset samsum \
 --model_type pegasus \
 --model google/pegasus-large \
 --model_name pegasus_samsum_train_100_seed_42_1 \
 --cache_dir ../../../hf_models/pegasus-large \
 --load_model True \
---load_model_path ../base_model_finetuning/few_shot_ft_saved_models/samsum/pegasus_samsum_train_100_seed_42_1/checkpoint-90/pytorch_model.bin \
+--load_model_path ("pegasus_samsum_train_100_seed_42_1", 90) \
 --val_dataset val_100_seed_42 \
 --inference_bs 2 \
 --save_summaries True \
