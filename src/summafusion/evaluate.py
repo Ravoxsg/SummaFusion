@@ -18,7 +18,6 @@ from utils import *
 from dataset import AbstractiveFusionDataset
 from training_utils import *
 from model import ModelAbstractiveFusion
-from model_classify import ModelClassify
 from engine import validate
 from evaluation_utils import *
 
