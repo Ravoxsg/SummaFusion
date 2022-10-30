@@ -83,7 +83,7 @@ src/summafusion/saved_models/{dataset}/
 ```
 And if it is a few-shot checkpoint, place it into:
 ```
-src/summafusion/saved_models/{dataset}/
+src/summafusion/saved_models/{dataset}_few_shot/
 ```
 where {dataset} is in {xsum,reddit,samsum} corresponds to the dataset name. 
 
