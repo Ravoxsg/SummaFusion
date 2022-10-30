@@ -5,7 +5,7 @@ python main_candidate_generation.py \
 --model_name pegasus_samsum_train_100_seed_42_1 \
 --cache_dir ../../../hf_models/pegasus-large \
 --load_model True \
---load_model_path ("pegasus_samsum_train_100_seed_42_1", 90) \
+--load_model_path pegasus_samsum_train_100_seed_42_1+90 \
 --val_dataset val_100_seed_42 \
 --inference_bs 2 \
 --save_summaries True \

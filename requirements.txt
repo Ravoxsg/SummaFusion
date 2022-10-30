@@ -12,3 +12,4 @@ tokenizers==0.10.3
 torch==1.9.1
 tqdm==4.62.2
 transformers==4.11.3
+py7zr==0.20.0
