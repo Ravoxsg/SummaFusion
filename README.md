@@ -70,11 +70,11 @@ bash scores.sh
 Scoring all candidates should take a few seconds in few-shot, and up to a few minutes on the validation or test sets of XSum, Reddit or SAMSum. 
 
 ### 3 - Download the model checkpoint
-XSum full-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>   
+XSum full-shot checkpoint: <a href="https://drive.google.com/file/d/1_6-Yj8vj7WNnXLFypEefIk1G0J4wDaQh/view?usp=share_link" style = "text-decoration:none;color:#4682B4">here</a>   
 XSum 100-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>   
-Reddit full-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>  
+Reddit full-shot checkpoint: <a href="https://drive.google.com/file/d/1QnSFLYDtm449irp4HjFyX_LvPsKOt4TF/view?usp=share_link" style = "text-decoration:none;color:#4682B4">here</a>  
 Reddit 100-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>   
-SAMSum full-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>  
+SAMSum full-shot checkpoint: <a href="https://drive.google.com/file/d/1_qZJGxduCKUB6C1egFgf5Coyo6s2OMOe/view?usp=share_link" style = "text-decoration:none;color:#4682B4">here</a>  
 SAMSum 100-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>   
 
 ### 4 - Run SummaFusion
