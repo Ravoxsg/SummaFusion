@@ -9,24 +9,21 @@ from transformers import RobertaTokenizer, RobertaTokenizerFast, RobertaModel, \
 
 def build_tokenizer(args):
     tokenizer = None
-    if args.model_type.startswith("roberta"):
-        print("\nUsing RoBERTa tokenizer")
-        tokenizer = RobertaTokenizerFast.from_pretrained(args.model, cache_dir = args.cache_dir)
-    elif args.model_type.startswith("bert"):
-        print("\nUsing BERT tokenizer")
-        tokenizer = BertTokenizerFast.from_pretrained(args.model, cache_dir = args.cache_dir)
+    if args.model_type.startswith("t5"):
+        print("\nUsing T5 tokenizer")
+        tokenizer = T5TokenizerFast.from_pretrained(args.model, cache_dir = args.cache_dir)
+    elif args.model_type.startswith("bart"):
+        print("\nUsing BART tokenizer")
+        tokenizer = BartTokenizerFast.from_pretrained(args.model, cache_dir = args.cache_dir)
+    elif args.model_type.startswith("pegasus"):
+        print("\nUsing Pegasus tokenizer")
+        tokenizer = PegasusTokenizer.from_pretrained(args.model, cache_dir = args.cache_dir)
 
     return tokenizer
 
 
 def build_model(args):
-    model = None
-    if args.model_type.startswith("roberta"):
-        print("\nUsing RoBERTa model")
-        model = RobertaModel.from_pretrained(args.model, cache_dir = args.cache_dir)
-    elif args.model_type.startswith("bert"):
-        print("\nUsing BERT model")
-        model = BertModel.from_pretrained(args.model, cache_dir = args.cache_dir)
+    model = BartForConditionalGenerationSource5b.from_pretrained(args.model, args = args, cache_dir = args.cache_dir)
 
     return model
 
