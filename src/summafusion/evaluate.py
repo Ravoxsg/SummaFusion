@@ -36,9 +36,9 @@ parser.add_argument('--few_shot_seed', type=int, default=42)
 
 # data
 parser.add_argument('--dataset', type=str, default="samsum")
-parser.add_argument('--generation_methods', type=str, default="2_diverse_beam_search",
-                    choices=["1_beam_search", "2_diverse_beam_search", "3_top_p_sampling", "4_top_k_sampling"])
-parser.add_argument('--scoring_methods', type=list, default=["1a_rouge_1", "1b_rouge_2", "1c_rouge_l"])
+parser.add_argument('--generation_methods', type=str, default="diverse_beam_search",
+                    choices=["beam_search", "diverse_beam_search", "top_p_sampling", "top_k_sampling"])
+parser.add_argument('--scoring_methods', type=list, default=["rouge_1", "rouge_2", "rouge_l"])
 parser.add_argument('--sep_symbol', type=str, default="[SEP]")
 # val
 parser.add_argument('--val_dataset', type=str, default="few_shot_default_val",
@@ -59,6 +59,7 @@ parser.add_argument('--encode_position', type=bool, default=True)
 parser.add_argument('--full_position_encoding', type=bool, default=False)
 parser.add_argument('--position_symbol', type=str, default="CAND_")
 parser.add_argument('--encode_generation_method', type=bool, default=False)
+parser.add_argument('--candidate_ordering', type=str, default="")
 parser.add_argument('--metric_idx', type=int, default=0)
 # subsetting
 parser.add_argument('--n_candidates_to_use', type=int, default=15)
@@ -97,7 +98,7 @@ parser.add_argument('--use_ss_for_cls', type=bool, default=False)
 parser.add_argument('--load_model', type=bool, default=True)
 parser.add_argument('--load_model_path', type=str, default= "few_shot_100_seed_42")
 # optimization
-parser.add_argument('--inference_bs', type=int, default=2)
+parser.add_argument('--inference_bs', type=int, default=4)
 
 # metrics
 # 1 - ROUGE
@@ -112,8 +113,6 @@ parser.add_argument('--eval_ngram_copying', type=bool, default=False)
 parser.add_argument('--eval_new_ngram', type=bool, default=True)
 
 # summary generation
-parser.add_argument('--evaluate_type', type=list, default=["inference", "generation"])  # in ["inference", "generation"]
-parser.add_argument('--generation_method', type=str, default="beam_search")
 parser.add_argument('--num_return_sequences', type=int, default=1)  # default: 1
 parser.add_argument('--num_gen_beams', type=int, default=10)  # default: 15
 
@@ -138,6 +137,7 @@ parser.add_argument('--evaluate_break_oracle', type=bool, default=False)
 parser.add_argument('--evaluate_ablation_candidates', type=bool, default=False)
 parser.add_argument('--n_ablation_candidates', type=list, default=[0, 1, 3, 5, 10, 15])
 parser.add_argument('--evaluate_without_source', type=bool, default=False)
+parser.add_argument('--evaluate_cross_attn_weights', type=bool, default=False)
 
 args = parser.parse_args()
 args.n_tasks = len(args.scoring_methods)
@@ -173,13 +173,13 @@ args.no_repeat_ngram_size = no_repeat_ngram_sizes[idx]
 args.clean_n = clean_ns[idx]
 args.rouge_thresh = rouge_threshs[idx]
 
-pegasus_model_names_few_shot = [
+model_names_few_shot = [
     "pegasus_xsum_train_{}_seed_{}_1".format(args.few_shot_size, args.few_shot_seed),
     "pegasus_reddit_train_{}_seed_{}_1".format(args.few_shot_size, args.few_shot_seed),
     "pegasus_samsum_train_{}_seed_{}_1".format(args.few_shot_size, args.few_shot_seed)
 ]
 if args.few_shot:
-    args.model_name = pegasus_model_names_few_shot[idx]
+    args.model_name = model_names_few_shot[idx]
     if args.val_dataset == "few_shot_default_val":
         args.val_dataset = "val_{}_seed_{}".format(args.few_shot_size, args.few_shot_seed)
         args.val_size = args.few_shot_size
@@ -253,6 +253,8 @@ def main(args):
         print("\nZERO-SHOT EVAL!!")
 
     _, texts, candidates, summaries, labels = validate(loader, tokenizer, model, args)
+    print(texts[0])
+    print(candidates[0])
 
     # evaluation
     if len(summaries) > 0:
@@ -264,7 +266,7 @@ def main(args):
         # 1 - candidates abstractiveness recall: new words COMPARED TO THE POOL OF 1ST-STAGE CANDIDATES
         if args.evaluate_candidates_abstractiveness:
             print("\n", ">" * 20, "Evaluate - candidates abstractiveness")
-            text_words, cand_words, summary_words, label_words = collect_words(texts, candidates, summaries, args)
+            text_words, cand_words, summary_words, label_words = collect_words(texts, candidates, summaries, labels, args)
             evaluate_candidates_new_ngrams(cand_words, summary_words, args)
 
         # 2 - new summaries

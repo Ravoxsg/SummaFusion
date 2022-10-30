@@ -2,8 +2,8 @@ import torch
 import numpy as np
 
 from transformers import AdamW, get_linear_schedule_with_warmup
-from transformers import RobertaTokenizer, RobertaTokenizerFast, RobertaModel, \
-    BertTokenizer, BertTokenizerFast, BertModel
+from transformers import T5TokenizerFast, BartTokenizerFast, PegasusTokenizerFast
+from models.model_bart_source_5b import BartForConditionalGenerationSource5b
 
 
 
@@ -17,7 +17,7 @@ def build_tokenizer(args):
         tokenizer = BartTokenizerFast.from_pretrained(args.model, cache_dir = args.cache_dir)
     elif args.model_type.startswith("pegasus"):
         print("\nUsing Pegasus tokenizer")
-        tokenizer = PegasusTokenizer.from_pretrained(args.model, cache_dir = args.cache_dir)
+        tokenizer = PegasusTokenizerFast.from_pretrained(args.model, cache_dir = args.cache_dir)
 
     return tokenizer
 

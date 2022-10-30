@@ -9,7 +9,7 @@ import re
 import json
 import torch.nn as nn
 
-sys.path.append("/data/mathieu/2nd_stage_summarization/")
+sys.path.append("/data/mathieu/SummaFusion/src/")
 
 from nltk.tokenize import word_tokenize
 from tqdm import tqdm
@@ -24,8 +24,6 @@ from sklearn.metrics import roc_auc_score
 from common.evaluation import *
 from common.data_scored import load_data
 from dataset import AbstractiveFusionDataset
-from dataset_classify import AbstractiveFusionDatasetClassify
-from model_classify import ModelClassify
 from training_utils import *
 from engine import validate
 

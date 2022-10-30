@@ -137,7 +137,7 @@ def write_to_txt(l, path):
     with open(path, "w") as f:
         for i in tqdm(range(len(l))):
             text = l[i]
-            text = text.replace("\n", " ").replace("\t", " ").replace("\r", " ")
+            text = text.replace("\n", " ").replace("\t", " ").replace("\r", "")
             if len(text) == 0:
                 print(i)
             f.write(text + "\n")

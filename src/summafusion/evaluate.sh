@@ -6,4 +6,4 @@ python evaluate.py \
 --val_dataset few_shot_default_val \
 --load_model True \
 --load_model_path few_shot_100_seed_42 \
---inference_bs 2 \
+--inference_bs 4 \

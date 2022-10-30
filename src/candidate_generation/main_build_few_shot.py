@@ -3,6 +3,7 @@
 import os
 import argparse
 import sys
+import re
 import numpy as np
 import pickle
 
@@ -75,7 +76,6 @@ def main(args):
             few_train_texts = train_texts[:size]
             few_val_summaries = val_summaries[:size]
             few_val_texts = val_texts[:size]
-
             with open(path + "train_{}_seed_{}_summary.txt".format(size, seed), "w") as f:
                 for l in few_train_summaries:
                     f.write(l)
