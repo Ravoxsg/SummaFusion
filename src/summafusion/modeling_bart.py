@@ -37,7 +37,7 @@ from transformers.models.bart.modeling_bart import BartAttention, BartLearnedPos
 
 
 
-class BartEncoderLayerSource5b(nn.Module):
+class BartEncoderLayer(nn.Module):
     def __init__(self, config: BartConfig):
         super().__init__()
         self.embed_dim = config.d_model
@@ -104,7 +104,7 @@ class BartEncoderLayerSource5b(nn.Module):
 
         return outputs
 
-class BartDecoderLayerSource5b(nn.Module):
+class BartDecoderLayer(nn.Module):
     def __init__(self, config: BartConfig, args):
         super().__init__()
         self.args = args
@@ -221,7 +221,7 @@ class BartDecoderLayerSource5b(nn.Module):
 
         return outputs
 
-class BartEncoderSource5b(BartPretrainedModel):
+class BartEncoder(BartPretrainedModel):
     """
     Transformer encoder consisting of *config.encoder_layers* self attention layers. Each layer is a
     [`BartEncoderLayer`].
@@ -253,7 +253,7 @@ class BartEncoderSource5b(BartPretrainedModel):
             config.max_position_embeddings,
             embed_dim,
         )
-        self.layers = nn.ModuleList([BartEncoderLayerSource5b(config) for _ in range(config.encoder_layers)])
+        self.layers = nn.ModuleList([BartEncoderLayer(config) for _ in range(config.encoder_layers)])
         self.layernorm_embedding = nn.LayerNorm(embed_dim)
 
         self.gradient_checkpointing = False
@@ -551,7 +551,7 @@ class BartEncoderSource5b(BartPretrainedModel):
                 last_hidden_state=hidden_states, hidden_states=encoder_states, attentions=all_attentions
             ), cls_outputs
 
-class BartDecoderSource5b(BartPretrainedModel):
+class BartDecoder(BartPretrainedModel):
     """
     Transformer decoder consisting of *config.decoder_layers* layers. Each layer is a [`BartDecoderLayer`]
 
@@ -578,7 +578,7 @@ class BartDecoderSource5b(BartPretrainedModel):
             config.max_position_embeddings,
             config.d_model,
         )
-        self.layers = nn.ModuleList([BartDecoderLayerSource5b(config, args) for _ in range(config.decoder_layers)])
+        self.layers = nn.ModuleList([BartDecoderLayer(config, args) for _ in range(config.decoder_layers)])
         self.layernorm_embedding = nn.LayerNorm(config.d_model)
 
         self.gradient_checkpointing = False
@@ -766,7 +766,7 @@ class BartDecoderSource5b(BartPretrainedModel):
             cross_attentions=all_cross_attentions,
         )
 
-class BartModelSource5b(BartPretrainedModel):
+class BartModel(BartPretrainedModel):
     def __init__(self, config: BartConfig, args):
         super().__init__(config)
 
@@ -775,8 +775,8 @@ class BartModelSource5b(BartPretrainedModel):
         padding_idx, vocab_size = config.pad_token_id, config.vocab_size
         self.shared = nn.Embedding(vocab_size, config.d_model, padding_idx)
 
-        self.encoder = BartEncoderSource5b(config, args, self.shared)
-        self.decoder = BartDecoderSource5b(config, args, self.shared)
+        self.encoder = BartEncoder(config, args, self.shared)
+        self.decoder = BartDecoder(config, args, self.shared)
 
         # Initialize weights and apply final processing
         self.post_init()
@@ -928,7 +928,7 @@ class BartModelSource5b(BartPretrainedModel):
 
 ######################################################################################################
 
-class BartForConditionalGenerationSource5b(BartPretrainedModel):
+class BartForConditionalGeneration(BartPretrainedModel):
     base_model_prefix = "model"
     _keys_to_ignore_on_load_missing = [r"final_logits_bias", r"lm_head\.weight"]
 
@@ -936,7 +936,7 @@ class BartForConditionalGenerationSource5b(BartPretrainedModel):
         super().__init__(config)
         self.config = config
         self.args = args
-        self.model = BartModelSource5b(config, args)
+        self.model = BartModel(config, args)
         self.register_buffer("final_logits_bias", torch.zeros((1, self.model.shared.num_embeddings)))
         self.lm_head = nn.Linear(config.d_model, self.model.shared.num_embeddings, bias=False)
 

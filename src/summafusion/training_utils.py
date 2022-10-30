@@ -3,7 +3,7 @@ import numpy as np
 
 from transformers import AdamW, get_linear_schedule_with_warmup
 from transformers import T5TokenizerFast, BartTokenizerFast, PegasusTokenizerFast
-from models.model_bart_source_5b import BartForConditionalGenerationSource5b
+from modeling_bart import BartForConditionalGeneration
 
 
 
@@ -23,7 +23,7 @@ def build_tokenizer(args):
 
 
 def build_model(args):
-    model = BartForConditionalGenerationSource5b.from_pretrained(args.model, args = args, cache_dir = args.cache_dir)
+    model = BartForConditionalGeneration.from_pretrained(args.model, args = args, cache_dir = args.cache_dir)
 
     return model
 
