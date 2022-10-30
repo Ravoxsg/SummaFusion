@@ -71,17 +71,11 @@ Scoring all candidates should take a few seconds in few-shot, and up to a few mi
 
 ### 3 - Download the model checkpoint
 XSum full-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>   
-XSum 10-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>   
 XSum 100-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>   
-XSum 1000-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>   
 Reddit full-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>  
-Reddit 10-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>   
 Reddit 100-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>   
-Reddit 1000-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>  
 SAMSum full-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>  
-SAMSum 10-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>   
 SAMSum 100-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>   
-SAMSum 1000-shot checkpoint: <a href="link" style = "text-decoration:none;color:#4682B4">here</a>
 
 ### 4 - Run SummaFusion
 For instance, to run SummaFusion on SAMSum 100-shot validation set:
