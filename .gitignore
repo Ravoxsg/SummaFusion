@@ -7,3 +7,7 @@ few_shot_permutations/*
 
 src/base_model_finetuning/ft_saved_models/*
 src/base_model_finetuning/few_shot_ft_saved_models/*
+src/summafusion/saved_models/*
+
+
+
