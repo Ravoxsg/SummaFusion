@@ -1,0 +1,4 @@
+data/*
+summaries/*
+scored_summaries/*
+few_shot_permutations/*

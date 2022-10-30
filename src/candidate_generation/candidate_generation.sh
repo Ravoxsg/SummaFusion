@@ -1,0 +1,15 @@
+python main_candidate_generation.py \
+--dataset reddit \
+--model_type pegasus \
+--model google/pegasus-large \
+--model_name pegasus_samsum_train_100_seed_42_1 \
+--cache_dir ../../../hf_models/pegasus-large \
+--load_model True \
+--load_model_path ../base_model_finetuning/few_shot_ft_saved_models/samsum/pegasus_samsum_train_100_seed_42_1/checkpoint-90/pytorch_model.bin \
+--val_dataset val_100_seed_42 \
+--inference_bs 2 \
+--save_summaries True \
+--generation_method diverse_beam_search \
+--num_return_sequences 15 \
+--num_beams 15 \
+--num_beam_groups 15 \
