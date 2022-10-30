@@ -1,5 +1,6 @@
-# Subsample large validation sets into smaller ones
+# Subsample (train, val) subsets from the training set
 
+import os
 import argparse
 import sys
 import numpy as np
@@ -18,21 +19,19 @@ from common.utils import seed_everything
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--seeds', type = list, default = [42, 43, 44])
-parser.add_argument('--dataset_name', type = str, default = "samsum") # in ["cnndm", "xsum", "reddit", "samsum"]
+parser.add_argument('--dataset', type = str, default = "samsum") # in ["cnndm", "xsum", "reddit", "samsum"]
 parser.add_argument('--few_shot_sizes', type = list, default = [10, 100, 1000])
 parser.add_argument('--data_folder', type = str, default = "../../data/")
 
 args = parser.parse_args()
 
-dataset_names = ["xsum", "reddit", "samsum"]
-datasets = ["XSum", "Reddit", "SAMSum"]
+datasets = ["xsum", "reddit", "samsum"]
 highlights = [False, False, False]
 train_sizes = [204045, 33704, 14732]
 val_sizes = [11332, 4213, 818]
 
-idx = dataset_names.index(args.dataset_name)
+idx = datasets.index(args.dataset)
 
-args.dataset = datasets[idx]
 args.highlights = highlights[idx]
 args.train_size = train_sizes[idx]
 args.val_size = val_sizes[idx]
@@ -46,29 +45,27 @@ def main(args):
     if not(os.path.isdir("../../few_shot_permutations/")):
         os.makedirs("../../few_shot_permutations/")
 
-    train_summaries, train_texts, train_top_sents = load_data_txt("train", args)
-    val_summaries, val_texts, val_top_sents = load_data_txt("val", args)
+    train_summaries, train_texts = load_data_txt("train", args)
+    val_summaries, val_texts = load_data_txt("val", args)
 
     for k in range(len(args.seeds)):
         seed = args.seeds[k]
         seed_everything(seed)
 
         p = np.random.permutation(len(train_summaries))
-        with open("../../few_shot_permutations/{}_seed_{}_train_permutation.pkl".format(args.dataset_name, seed), "wb") as f:
+        with open("../../few_shot_permutations/{}_seed_{}_train_permutation.pkl".format(args.dataset, seed), "wb") as f:
             pickle.dump(p, f)
             print("saved training permutation!")
         train_summaries = [train_summaries[x] for x in p]
         train_texts = [train_texts[x] for x in p]
-        train_top_sents = [train_top_sents[x] for x in p]
 
         p = np.random.permutation(len(val_summaries))
-        with open("../../few_shot_permutations/{}_seed_{}_val_permutation.pkl".format(args.dataset_name, seed), "wb") as f:
+        with open("../../few_shot_permutations/{}_seed_{}_val_permutation.pkl".format(args.dataset, seed), "wb") as f:
             pickle.dump(p, f)
             print("saved val permutation!")
 
         val_summaries = [val_summaries[x] for x in p]
         val_texts = [val_texts[x] for x in p]
-        val_top_sents = [val_top_sents[x] for x in p]
         path = args.data_folder + "{}/".format(args.dataset)
         for i in range(len(args.few_shot_sizes)):
             size = args.few_shot_sizes[i]
