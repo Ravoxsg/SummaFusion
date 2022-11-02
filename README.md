@@ -47,7 +47,7 @@ For instance on SAMSum 100-shot (default code):
 bash few_shot.sh
 ```
 
-## EVALUATION pipeline (assumes an already trained SummaFusion checkpoint)
+## EVALUATION pipeline 
 
 ### 1 - Generate summary candidates
 SummaFusion takes as input a set of summary candidates from a given sequence-to-sequence model PEGASUS with diverse beam search.
