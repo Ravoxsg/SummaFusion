@@ -40,7 +40,7 @@ For the **validation** set, size is **4,213** and the first data point summary i
 For the **test** set, size is **4,222** and the first data point summary is:  
 *laughed at baby boner...it turned into a super soaker.*  
 
-If you want to work in few-shot, you need to prepare the (train, val) few-shot pairs.
+If you want to work in few-shot, you need to prepare the (train, val) few-shot pairs. For each dataset and each few-shot size (among {10,100,1000}), we sample 3 pairs, corresponding to seeds {42,43,44}.
 
 For instance on SAMSum 100-shot (default code):
 ```
