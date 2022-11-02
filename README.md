@@ -90,7 +90,7 @@ where {dataset} is in {xsum,reddit,samsum} corresponds to the dataset name.
 ### 4 - Run SummaFusion
 For instance, to run SummaFusion on SAMSum 100-shot validation set (default code):
 ```
-cd ../summareranker/
+cd ../summafusion/
 CUDA_VISIBLE_DEVICES=0 bash evaluate.sh
 ```
 Make sure that the argument --load_model_path points to the name of the checkpoint you want to use. 
