@@ -37,8 +37,8 @@ idx = dataset_names.index(args.dataset)
 args.data_folder = "../../data/{}/".format(args.dataset)
 args.thresh = threshs[idx]
 if args.few_shot:
-    few_shot_size = int(args.training_set.split("_")[1])
-    args.thresh = int(few_shot_size/2)
+    args.few_shot_size = int(args.training_set.split("_")[1])
+    args.thresh = int(args.few_shot_size/2)
 
 print("*"*50)
 print(args)
@@ -68,18 +68,20 @@ def main(args):
     train_summaries = [train_summaries[i] for i in p]
     train_texts = [train_texts[i] for i in p]
     print("permuted the training set!")
-    p_to_normal = {}
-    for i in range(len(p)):
-        p_to_normal[p[i]] = i
+    
+    if args.few_shot:
+        train_summaries = train_summaries[:args.few_shot_size]
+        train_texts = train_texts[:args.few_shot_size]
+        print(len(train_texts))
 
     # 1st half - full files
     first_half_summaries = train_summaries[:args.thresh]
     first_half_texts = train_texts[:args.thresh]
     print(len(first_half_summaries), len(first_half_texts))
-    with open(args.data_folder + "first_half_{}_shuffled_summary.txt".format(args.train_name), "wb") as f:
+    with open(args.data_folder + "first_half_{}_shuffled_summary.txt".format(args.training_set), "wb") as f:
         for l in first_half_summaries:
             f.write(l)
-    with open(args.data_folder + "first_half_{}_shuffled_text.txt".format(args.train_name), "wb") as f:
+    with open(args.data_folder + "first_half_{}_shuffled_text.txt".format(args.training_set), "wb") as f:
         for l in first_half_texts:
             f.write(l)
 
@@ -87,10 +89,10 @@ def main(args):
     second_half_summaries = train_summaries[args.thresh:]
     second_half_texts = train_texts[args.thresh:]
     print(len(second_half_summaries), len(second_half_texts))
-    with open(args.data_folder + "second_half_{}_shuffled_summary.txt".format(args.train_name), "wb") as f:
+    with open(args.data_folder + "second_half_{}_shuffled_summary.txt".format(args.training_set), "wb") as f:
         for l in second_half_summaries:
             f.write(l)
-    with open(args.data_folder + "second_half_{}_shuffled_text.txt".format(args.train_name), "wb") as f:
+    with open(args.data_folder + "second_half_{}_shuffled_text.txt".format(args.training_set), "wb") as f:
         for l in second_half_texts:
             f.write(l)
             

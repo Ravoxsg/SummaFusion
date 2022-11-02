@@ -1,4 +1,4 @@
-python -m torch.distributed.launch --nproc_per_node=1 --master_port=2000 main.py \
+python -m torch.distributed.launch --nproc_per_node=1 --master_port=2000 main.py
 --dataset samsum \
 --few_shot True \
 --few_shot_size 100 \
@@ -16,7 +16,7 @@ python -m torch.distributed.launch --nproc_per_node=1 --master_port=2000 main.py
 --train_bs 2 \
 --inference_bs 2 \
 --gradient_accumulation_steps 32 \
---lr 2e-5 \
+--lr 0.00002 \
 --wd 0 \
 --save_model True \
 --save_model_path saved_models/samsum_few_shot/few_shot_100_seed_42/pytorch_model.bin \

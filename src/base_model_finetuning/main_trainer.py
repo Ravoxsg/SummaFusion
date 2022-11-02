@@ -5,7 +5,7 @@ import time
 import torch.nn as nn
 import sys
 
-sys.path.append("/data/mathieu/SummaReranker/src/")
+sys.path.append("/data/mathieu/SummaFusion/src/")
 
 from tqdm import tqdm
 from torch.utils.data import DataLoader, Dataset, RandomSampler, SequentialSampler
@@ -141,11 +141,11 @@ args.scheduler = "constant"
 args.warmup_ratio = 0
 args.gradient_accumulation_steps = 128
 if args.eval_every < 0:
-    args.eval_every = eval_everys[idx]
+    args.eval_every = eval_every[idx]
 args.max_summary_length = max_summary_lengths[idx]
 # summary generation
-args.length_penalty = length_penalties_pegasus[idx]
-args.no_repeat_ngram_size = no_repeat_ngram_sizes_pegasus[idx]
+args.length_penalty = length_penalties[idx]
+args.no_repeat_ngram_size = no_repeat_ngram_sizes[idx]
 args.num_beams = 8
 
 if "_10_" in args.train_dataset or "_100_" in args.train_dataset or "_1000_" in args.train_dataset:

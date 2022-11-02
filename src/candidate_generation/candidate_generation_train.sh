@@ -6,8 +6,8 @@ python main_candidate_generation.py \
 --model_name pegasus_samsum_first_half_train_100_seed_42_shuffled_1 \
 --cache_dir ../../../hf_models/pegasus-large \
 --load_model True \
---load_model_path ../base_model_finetuning/few_shot_ft_saved_models/samsum/pegasus_samsum_first_half_train_100_seed_42_shuffled_1/checkpoint-40/pytorch_model.bin \
---inference_bs 2 \
+--load_model_path pegasus_samsum_first_half_train_100_seed_42_shuffled_1+40 \
+--inference_bs 4 \
 --save_summaries True \
 --generation_method diverse_beam_search \
 --num_return_sequences 15 \
@@ -22,8 +22,8 @@ python main_candidate_generation.py \
 --model_name pegasus_samsum_second_half_train_100_seed_42_shuffled_1 \
 --cache_dir ../../../hf_models/pegasus-large \
 --load_model True \
---load_model_path ../base_model_finetuning/few_shot_ft_saved_models/samsum/pegasus_samsum_second_half_train_100_seed_42_shuffled_1/checkpoint-40/pytorch_model.bin \
---inference_bs 2 \
+--load_model_path pegasus_samsum_second_half_train_100_seed_42_shuffled_1+40 \
+--inference_bs 4 \
 --save_summaries True \
 --generation_method diverse_beam_search \
 --num_return_sequences 15 \
@@ -38,8 +38,8 @@ python main_candidate_generation.py \
 --model_name pegasus_samsum_train_100_seed_42_1 \
 --cache_dir ../../../hf_models/pegasus-large \
 --load_model True \
---load_model_path ../base_model_finetuning/few_shot_ft_saved_models/samsum/pegasus_samsum_train_100_seed_42_1/checkpoint-90/pytorch_model.bin \
---inference_bs 2 \
+--load_model_path pegasus_samsum_train_100_seed_42_1+90 \
+--inference_bs 4 \
 --save_summaries True \
 --generation_method diverse_beam_search \
 --num_return_sequences 15 \
@@ -48,14 +48,14 @@ python main_candidate_generation.py \
 
 # Model trained on entire training set => infer on test set
 python main_candidate_generation.py \
---dataset samsuk \
+--dataset samsum \
 --val_dataset test \
 --model google/pegasus-large \
---model_name pegasus_reddit_train_1 \
+--model_name pegasus_samsum_train_100_seed_42_1 \
 --cache_dir ../../../hf_models/pegasus-large \
 --load_model True \
---load_model_path ../base_model_finetuning/few_shot_ft_saved_models/samsum/pegasus_samsum_train_100_seed_42_1/checkpoint-90/pytorch_model.bin \
---inference_bs 2 \
+--load_model_path pegasus_samsum_train_100_seed_42_1+90 \
+--inference_bs 4 \
 --save_summaries True \
 --generation_method diverse_beam_search \
 --num_return_sequences 15 \

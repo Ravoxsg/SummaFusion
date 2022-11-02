@@ -8,13 +8,14 @@ import datasets
 import time
 import pickle
 import sys
+import os
 
-sys.path.append("/data/mathieu/2nd_stage_summarization/")
+sys.path.append("/data/mathieu/SummaFusion/src/")
 
 from torch.utils.data.dataloader import DataLoader
 from transformers import Adafactor, get_linear_schedule_with_warmup
 
-from common.utils import seed_everything, check_scores, check_training_data
+from common.utils import seed_everything, check_scores
 from common.data_scored import load_data
 from utils import *
 from dataset import AbstractiveFusionDataset
@@ -27,11 +28,11 @@ from engine import training_loop
 parser = argparse.ArgumentParser()
 
 root = "/data/mathieu/"
-#root = "/home/ravox/Documents/"
 
 parser.add_argument('--seed', type=int, default = 42)
 parser.add_argument('--cuda', type=bool, default = True)
 parser.add_argument('--fp16', type=bool, default = True)
+parser.add_argument('--local_rank', type=int, default = 0)
 parser.add_argument('--debug', type = bool, default = False)
 parser.add_argument('--few_shot', type = bool, default = True)
 few_shot_size = 100
@@ -40,8 +41,8 @@ parser.add_argument('--few_shot_size', type=int, default = few_shot_size)
 parser.add_argument('--few_shot_seed', type=int, default = few_shot_seed)
 
 # data
-parser.add_argument('--dataset_name', type=str, default = "samsum")
-parser.add_argument('--generation_method_str', type = str, default = "diverse_beam_search")
+parser.add_argument('--dataset', type=str, default = "samsum")
+parser.add_argument('--generation_methods_str', type = str, default = "diverse_beam_search")
 parser.add_argument('--scoring_methods_str', type=str, default = "rouge_1+rouge_2+rouge_l")
 parser.add_argument('--sep_symbol', type=str, default = "[SEP]")
 # train
@@ -82,11 +83,12 @@ parser.add_argument('--shuffle_candidates', type=bool, default = False)
 # general
 parser.add_argument('--model', type=str, default = "facebook/bart-large")
 parser.add_argument('--cache_dir', type=str, default = root + "hf_models/bart-large/")
-parser.add_argument('--hidden_size', type=int, default = 768) # 768 / 1024
+parser.add_argument('--hidden_size', type=int, default = 1024) # 768 / 1024
 # classification
 parser.add_argument('--classify_candidates', type = bool, default = True)
 parser.add_argument('--cls_loss_weight', type = float, default = 1.0)
 parser.add_argument('--cls_hidden_size', type = int, default = 2048)
+parser.add_argument('--cand_subsampling_method', type = str, default = "")
 parser.add_argument('--subsample_cls_cands', type = bool, default = True)
 parser.add_argument('--n_subsample_cls_neg', type = int, default = 1)
 parser.add_argument('--use_source_for_cls', type = bool, default = True)
@@ -109,18 +111,18 @@ parser.add_argument('--print_every', type = int, default = 100)
 parser.add_argument('--eval_per_epoch', type = bool, default = False)
 
 # summary generation
+parser.add_argument('--num_return_sequences', type = int, default = 1)
 parser.add_argument('--num_gen_beams', type = int, default = 10) # default: 15
-parser.add_argument('--num_gen_beam_groups', type = int, default = 1) # default: 15
 parser.add_argument('--repetition_penalty', type = float, default = 1.0)
 parser.add_argument('--length_penalty', type = float, default = 1.0)
 
 # evaluation
-parser.add_argument('--eval_epoch_0', type = bool, default = True)
+parser.add_argument('--eval_epoch_0', type = bool, default = False)
 parser.add_argument('--stemmer', type = bool, default = True)
 
 # export
 parser.add_argument('--save_model', type = bool, default = True)
-parser.add_argument('--save_model_path', type = str, default = "saved_models/samsum_few_shot/few_shot_100_seed_42/pytorch_model.bin".format(few_shot_size, few_shot_seed))
+parser.add_argument('--save_model_path', type = str, default = "saved_models/samsum_few_shot/few_shot_100_seed_42/".format(few_shot_size, few_shot_seed))
 parser.add_argument('--load_model', type = bool, default = False)
 parser.add_argument('--load_model_path', type = str, default = "")
 
@@ -129,23 +131,23 @@ args.generation_methods = args.generation_methods_str.split("+")
 args.scoring_methods = args.scoring_methods_str.split("+")
 args.n_tasks = len(args.scoring_methods)
 
-dataset_names = ["xsum", "reddit", "samsum"]
+datasets = ["xsum", "reddit", "samsum"]
 folder_names = ["XSum", "Reddit", "SAMSum"]
 train_sizes = [[102000, 102045], [17000, 16704], [7350, 7382]]
-val_sizes = [13368, 11332, 4213, 818]
+val_sizes = [11332, 4213, 818]
 train_model_names = [
     ["pegasus_xsum_second_half_shuffled_1", "pegasus_xsum_first_half_shuffled_1"],
     ["pegasus_reddit_second_half_shuffled_1", "pegasus_reddit_first_half_shuffled_1"],
-    ["pegasus_samsum_second_half_shuffled_2", "pegasus_samsum_first_half_shuffled_2"],
+    ["pegasus_samsum_second_half_shuffled_1", "pegasus_samsum_first_half_shuffled_1"],
 ]
-model_names = ["pegasus_xsum", "pegasus_reddit_train_1", "pegasus_samsum_train_4"]
+model_names = ["pegasus_xsum", "pegasus_reddit_train_1", "pegasus_samsum_train_1"]
 max_canditate_lengths_95 = [34, 43, 42]
 max_summary_lengths = [64, 64, 64]
 max_gen_summary_lengths = [64, 64, 64]
 no_repeat_ngram_sizes = [3, 3, 3]
 eval_every = [500, 100, 50]
 
-idx = dataset_names.index(args.dataset_name)
+idx = datasets.index(args.dataset)
 args.data_folder = root + "DATASETS/{}/data/".format(folder_names[idx])
 args.scored_summaries_path = "../reranking_data/{}/".format(folder_names[idx])
 args.train_datasets = ["first_half_train_shuffled", "second_half_train_shuffled"]
@@ -170,7 +172,7 @@ model_names_few_shot = [
     "pegasus_samsum_train_{}_seed_{}_1".format(args.few_shot_size, args.few_shot_seed)
 ]
 if args.few_shot:
-    args.train_datasets = ["first_half_train_train_{}_seed_{}_shuffled".format(args.few_shot_size, args.few_shot_seed),
+    args.train_datasets = ["first_half_train_{}_seed_{}_shuffled".format(args.few_shot_size, args.few_shot_seed),
                            "second_half_train_{}_seed_{}_shuffled".format(args.few_shot_size, args.few_shot_seed)]
     if args.val_dataset == "few_shot_default_val":
         args.val_dataset = "val_{}_seed_{}".format(args.few_shot_size, args.few_shot_seed)
@@ -218,10 +220,6 @@ def main(args):
     if args.encode_generation_method:
         for j in range(len(args.generation_methods)):
             tokenizer.add_tokens(["GEN_{}".format(j)])
-    
-    # check data
-    if args.check_training_data:
-        check_training_data(args)
 
     # data & datasets
     datasets = []
@@ -229,7 +227,7 @@ def main(args):
         set, size = x
         # data
         train = set == args.train_datasets
-        texts, summaries, scored_summaries = load_data(set, size, args, individual_txt = args.highlights, train = train)
+        texts, summaries, scored_summaries = load_data(set, size, args, train = train)
         print(set, len(texts))
         if args.debug:
             texts = texts[:10]
@@ -269,25 +267,6 @@ def main(args):
 
     # model
     pretrained_model = build_model(args)
-    if args.init_source_attn_weights:
-        state_dict = {}
-        for k in pretrained_model.state_dict().keys():
-            if "source_attn" in k:
-                start = 0
-                for i in range(len(k)):
-                    if k[i:(i + 11)] == "source_attn":
-                        start = i
-                        break
-                pre = k[:i]
-                post = k[(i + 11):]
-                new_k = pre + "self_attn" + post
-                state_dict[k] = pretrained_model.state_dict()[new_k]
-            else:
-                state_dict[k] = pretrained_model.state_dict()[k]
-        pretrained_model.load_state_dict(state_dict)
-        print("Initialized the source attention weights with the self attention ones")
-        #print(pretrained_model.state_dict()["model.decoder.layers.5.source_attn.out_proj.bias"])
-        #print(pretrained_model.state_dict()["model.decoder.layers.5.self_attn.out_proj.bias"])
     model = ModelAbstractiveFusion(pretrained_model, tokenizer, args)
     n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print("\nThe model has {} trainable parameters".format(n_params))
@@ -317,6 +296,9 @@ def main(args):
             num_training_steps = total_steps
         )
 
+    if not(os.path.isdir(args.save_model_path)):
+        os.makedirs(args.save_model_path)
+    
     # training loop
     training_loop(train_loader, val_loader, tokenizer, model, optimizer, scheduler, args)
 

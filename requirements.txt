@@ -8,7 +8,6 @@ rouge-score==0.0.4
 sacremoses==0.0.45
 scipy==1.7.1
 sentencepiece==0.1.96
-tokenizers==0.10.3
 torch==1.9.1
 tqdm==4.62.2
 transformers==4.17.0

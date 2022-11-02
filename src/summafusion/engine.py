@@ -53,7 +53,7 @@ def training_loop(train_loader, val_loader, tokenizer, model, optimizer, schedul
                     if val_metrics[metric][-1] == max(val_metrics[metric]):
                         print("!!!New best validation performance!!!")
                         if args.save_model:
-                            torch.save(model.state_dict(), args.save_model_path)
+                            torch.save(model.state_dict(), args.save_model_path + "pytorch_model.bin")
                             print("saved model!", args.save_model_path)
             model.train()
 

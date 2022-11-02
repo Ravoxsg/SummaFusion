@@ -133,10 +133,16 @@ if args.val_size < 0:
         args.val_size = test_data_sizes[idx]
     elif "_10_" in args.val_dataset:
         args.val_size = 10
+        if "half" in args.val_dataset:
+            args.val_size = 5
     elif "_100_" in args.val_dataset:
         args.val_size = 100
+        if "half" in args.val_dataset:
+            args.val_size = 50
     elif "_1000_" in args.val_dataset:
         args.val_size = 1000
+        if "half" in args.val_dataset:
+            args.val_size = 500
 args.test_data_size = test_data_sizes[idx]
 
 print("*"*50)

@@ -36,7 +36,7 @@ parser.add_argument('--few_shot_seed', type=int, default=42)
 
 # data
 parser.add_argument('--dataset', type=str, default="samsum")
-parser.add_argument('--generation_method_str', type = str, default = "diverse_beam_search")
+parser.add_argument('--generation_methods_str', type = str, default = "diverse_beam_search")
 parser.add_argument('--scoring_methods_str', type=str, default = "rouge_1+rouge_2+rouge_l")
 parser.add_argument('--sep_symbol', type=str, default="[SEP]")
 # val
