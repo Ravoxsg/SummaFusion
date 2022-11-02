@@ -95,6 +95,51 @@ CUDA_VISIBLE_DEVICES=0 bash evaluate.sh
 ```
 Make sure that the argument --load_model_path points to the name of the checkpoint you want to use. 
 
+## TRAINING pipeline
+
+### 1 - Fine-tune base models
+
+We follow a cross-validation approach similar to SummaReranker.
+
+First we split each training set into two halves.
+
+For instance on SAMSum 100-shot:
+```
+cd ../base_model_finetuning/
+bash build_train_splits.sh
+```
+
+Then we train a model on each half, and a third model on the entire training set. 
+```
+CUDA_VISIBLE_DEVICES=0 bash train_base_models.sh
+```
+
+### 2 - Generate summary candidates
+Then, we need to get summary candidates on the training, validation and test sets. 
+
+For instance on SAMSum 100-shot:
+```
+cd ../candidate_generation/
+CUDA_VISIBLE_DEVICES=0 bash candidate_generation_train.sh
+```
+Generating summary candidates should take a few minutes in few-shot, and up to a few days for XSum full-shot. 
+
+### 3 - Score the candidates
+Next, we need to score the summary candidates on the training, validation and test sets for each of the metrics. This is needed for the candidate-level classification part of SummaFusion. 
+
+For instance on SAMSum 100-shot with ROUGE-1/2/L:
+```
+CUDA_VISIBLE_DEVICES=0 bash scores_train.sh
+```
+Scoring all candidates should take a few seconds in few-shot, a few minutes in full-shot. 
+
+### 4 - Train SummaFusion
+For instance, to train Summafusion on SAMSum 100-shot:
+```
+cd ../summafusion/
+CUDA_VISIBLE_DEVICES=0 bash train.sh
+```
+
 ## Citation
 If you find our paper or this project helps your research, please kindly consider citing our paper in your publication.   
 ```
