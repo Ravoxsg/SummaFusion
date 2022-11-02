@@ -178,20 +178,16 @@ args = parser.parse_args()
 args.load_model_path = (args.load_model_path.split("+")[0], args.load_model_path.split("+")[1])
 
 dataset_names = ["xsum", "reddit", "samsum"]
-highlights = [False, False, False]
 max_lengths = [512, 512, 512]
 max_summary_lengths = [64, 64, 64]
-clean_ns = [False, False, False]
 length_penalties = [0.8, 0.6, 0.8]
 repetition_penalties = [1.0, 1.0, 1.0]
 no_repeat_ngram_sizes = [3, 3, 0]
 
 idx = dataset_names.index(args.dataset)
 
-args.highlights = highlights[idx]
 args.max_length = max_lengths[idx]
 args.max_summary_length = max_summary_lengths[idx]
-args.clean_n = clean_ns[idx]
 args.length_penalty = length_penalties[idx]
 args.repetition_penalty = repetition_penalties[idx]
 args.no_repeat_ngram_size = no_repeat_ngram_sizes[idx]
@@ -222,7 +218,7 @@ def main(args):
     print("\nUsing device {}".format(device))
 
     # data
-    val_data = load_data(args.val_dataset, args, individual_txt = args.highlights)
+    val_data = load_data(args.val_dataset, args)
 
     # tokenizer
     tokenizer = build_tokenizer(args)

@@ -8,16 +8,8 @@ from modeling_bart import BartForConditionalGeneration
 
 
 def build_tokenizer(args):
-    tokenizer = None
-    if args.model_type.startswith("t5"):
-        print("\nUsing T5 tokenizer")
-        tokenizer = T5TokenizerFast.from_pretrained(args.model, cache_dir = args.cache_dir)
-    elif args.model_type.startswith("bart"):
-        print("\nUsing BART tokenizer")
-        tokenizer = BartTokenizerFast.from_pretrained(args.model, cache_dir = args.cache_dir)
-    elif args.model_type.startswith("pegasus"):
-        print("\nUsing Pegasus tokenizer")
-        tokenizer = PegasusTokenizerFast.from_pretrained(args.model, cache_dir = args.cache_dir)
+    print("\nUsing BART tokenizer")
+    tokenizer = BartTokenizerFast.from_pretrained(args.model, cache_dir = args.cache_dir)
 
     return tokenizer
 

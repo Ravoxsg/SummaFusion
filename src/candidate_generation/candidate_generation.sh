@@ -1,6 +1,5 @@
 python main_candidate_generation.py \
 --dataset samsum \
---model_type pegasus \
 --model google/pegasus-large \
 --model_name pegasus_samsum_train_100_seed_42_1 \
 --cache_dir ../../../hf_models/pegasus-large \

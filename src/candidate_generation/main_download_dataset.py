@@ -26,7 +26,6 @@ args = parser.parse_args()
 
 dataset_keys = ["xsum", "reddit", "samsum"]
 dataset_names = ["xsum", "reddit_tifu", "samsum"]
-highlights = [False, False, False]
 make_splits = [False, True, False]
 data_versions = ["", "long", ""]
 text_keys = ["document", "documents", "dialogue"]
@@ -34,7 +33,6 @@ summary_keys = ["summary", "tldr", "summary"]
 
 idx = dataset_keys.index(args.dataset)
 args.dataset_name = dataset_names[idx]
-args.highlights = highlights[idx]
 args.make_split = make_splits[idx]
 args.data_version = data_versions[idx]
 args.text_key = text_keys[idx]
@@ -114,17 +112,6 @@ def main(args):
                 print(set, len(text))
                 path = "../../data/{}/".format(args.dataset) + "{}_{}.txt".format(set_name, content_name)
                 write_to_txt(text, path)
-
-                # individual files (to use for CNN/DM)
-                if args.highlights:
-                    text = [x[content] for x in dataset_set]
-                    print(set, len(text))
-                    folder_path = "../../data/{}/".format(args.dataset) + set_name + "/" + content_name + "/"
-                    try:
-                        os.makedirs(folder_path)
-                    except FileExistsError:
-                        pass
-                    write_to_individual_txt(text, folder_path, set_name, content_name)
 
 
 def seed_everything(seed=42):

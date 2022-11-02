@@ -5,7 +5,6 @@ import numpy as np
 
 
 class ModelAbstractiveFusion(nn.Module):
-
     def __init__(self, model, tokenizer, args):
         super(ModelAbstractiveFusion, self).__init__()
         self.model = model
@@ -51,7 +50,6 @@ class ModelAbstractiveFusion(nn.Module):
         }
         
         return outputs
-
 
     def get_loss(self, output):
         overall_loss = output["loss"]

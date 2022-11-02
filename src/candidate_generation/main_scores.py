@@ -121,14 +121,11 @@ parser.add_argument('--eval_rouge_text', type = bool, default = False)
 args = parser.parse_args()
 
 dataset_names = ["xsum", "reddit", "samsum"]
-highlights = [False, False, False]
 val_data_sizes = [11332, 4213, 818]
 test_data_sizes = [11334, 4222, 819]
-clean_ns = [False, False, False]
 
 idx = dataset_names.index(args.dataset)
 
-args.highlights = highlights[idx]
 if args.val_size < 0:
     if args.val_dataset == "val":
         args.val_size = val_data_sizes[idx]
@@ -141,7 +138,6 @@ if args.val_size < 0:
     elif "_1000_" in args.val_dataset:
         args.val_size = 1000
 args.test_data_size = test_data_sizes[idx]
-args.clean_n = clean_ns[idx]
 
 print("*"*50)
 print(args)
@@ -275,10 +271,6 @@ def get_rouge_scores(label, summaries_i, scorer, args):
     scores_i = []
     for j in range(len(summaries_i)):
         summary = summaries_i[j]
-        if args.clean_n:
-            summary = summary.replace("<n>", " ")
-        if args.highlights:
-            summary = "\n".join(sent_tokenize(summary))
         rouge_scores = scorer.score(label, summary)
         r1 = 100 * rouge_scores["rouge1"].fmeasure
         r2 = 100 * rouge_scores["rouge2"].fmeasure

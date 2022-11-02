@@ -27,13 +27,11 @@ parser.add_argument('--data_folder', type = str, default = "../../data/")
 args = parser.parse_args()
 
 datasets = ["xsum", "reddit", "samsum"]
-highlights = [False, False, False]
 train_sizes = [204045, 33704, 14732]
 val_sizes = [11332, 4213, 818]
 
 idx = datasets.index(args.dataset)
 
-args.highlights = highlights[idx]
 args.train_size = train_sizes[idx]
 args.val_size = val_sizes[idx]
 

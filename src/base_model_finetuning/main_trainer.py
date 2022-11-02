@@ -39,23 +39,47 @@ parser.add_argument("--local_rank", type=int, default = 0, help="Local rank. Nec
 parser.add_argument('--train', type=bool, default = True)
 
 # data
-parser.add_argument('--dataset', type=str, default = "reddit",
-                    choices=["cnndm", "xsum", "reddit"])
+parser.add_argument('--dataset', type=str, default = "samsum",
+                    choices=["xsum", "reddit", "samsum"])
 # train
-parser.add_argument('--train_dataset', type = str, default = "train")
-parser.add_argument('--max_train_size', type=int, default = 1000000)
+parser.add_argument('--train_dataset', type = str, default = "train_100_seed_42",
+                    choices = [
+                        "train",
+                        "first_half_train_10_seed_42_shuffled", "second_half_train_10_seed_42_shuffled", "train_10_seed_42",
+                        "first_half_train_10_seed_43_shuffled", "second_half_train_10_seed_43_shuffled", "train_10_seed_43",
+                        "first_half_train_10_seed_44_shuffled", "second_half_train_10_seed_44_shuffled", "train_10_seed_44",
+                        "first_half_train_100_seed_42_shuffled", "second_half_train_100_seed_42_shuffled", "train_100_seed_42",
+                        "first_half_train_100_seed_43_shuffled", "second_half_train_100_seed_43_shuffled", "train_100_seed_43",
+                        "first_half_train_100_seed_44_shuffled", "second_half_train_100_seed_44_shuffled", "train_100_seed_44",
+                        "first_half_train_1000_seed_42_shuffled", "second_half_train_1000_seed_42_shuffled", "train_1000_seed_42",
+                        "first_half_train_1000_seed_43_shuffled", "second_half_train_1000_seed_43_shuffled", "train_1000_seed_43",
+                        "first_half_train_1000_seed_44_shuffled", "second_half_train_1000_seed_44_shuffled", "train_1000_seed_44",
+                    ])
+parser.add_argument('--max_train_size', type=int, default = 100)
 # val
-parser.add_argument('--val_dataset', type = str, default = "val")
-parser.add_argument('--max_val_size', type = int, default = 1000000)
+parser.add_argument('--val_dataset', type = str, default = "val_100_seed_42",
+                    choices = [
+                        "val",
+                        "val_10_seed_42", "val_10_seed_43", "val_10_seed_44",
+                        "val_100_seed_42", "val_100_seed_43", "val_100_seed_44",
+                        "val_1000_seed_42", "val_1000_seed_43", "val_1000_seed_44",
+                    ])
+parser.add_argument('--max_val_size', type = int, default = 100)
 # test
-parser.add_argument('--test_dataset', type = str, default = "test")
-parser.add_argument('--max_test_size', type = int, default = 1000000)
+parser.add_argument('--test_dataset', type = str, default = "val_100_seed_42",
+                    choices = [
+                        "val", "test",
+                        "val_10_seed_42", "val_10_seed_43", "val_10_seed_44",
+                        "val_100_seed_42", "val_100_seed_43", "val_100_seed_44",
+                        "val_1000_seed_42", "val_1000_seed_43", "val_1000_seed_44",
+                    ])
+parser.add_argument('--max_test_size', type = int, default = 100)
 
 # model
 parser.add_argument('--model_type', type=str, default = "pegasus",
-                    choices=["pegasus", "bart"])
+                    choices=["pegasus"])
 parser.add_argument('--model', type=str, default = "google/pegasus-large",
-                    choices=["google/pegasus-large", "facebook/bart-large"])
+                    choices=["google/pegasus-large"])
 parser.add_argument('--hidden_size', type=int, default = 768)
 parser.add_argument('--cache_dir', type=str, default = "../../../hf_models/pegasus-large/") # in ["pegasus-large", "bart-large"]
 parser.add_argument('--load_model', type=bool, default = False)
@@ -74,8 +98,6 @@ parser.add_argument('--repetition_penalty', type = float, default = 1.0)
 # evaluation
 parser.add_argument('--eval_epoch_0', type = bool, default = True)
 parser.add_argument('--evaluation_strategy', type=str, default = "steps")
-parser.add_argument('--evaluation_method', type=str, default = "generation",
-                    choices=["generation", "loss"])
 parser.add_argument('--eval_test', type=bool, default = False)
 parser.add_argument('--eval_every', type=int, default=-1)
 
@@ -87,28 +109,22 @@ parser.add_argument('--show_summaries_count', type=int, default = 1) # batches
 
 # export
 parser.add_argument('--n_checkpoints_to_save', type=int, default = 2)
-parser.add_argument('--save_model_path', type=str, default = "ft_saved_models/reddit/pegasus_reddit_train_1")
+parser.add_argument('--save_model_path', type=str, default = "few_shot_ft_saved_models/samsum/pegasus_samsum_train_100_seed_42_1")
 
 args = parser.parse_args()
 
-dataset_names = ["cnndm", "xsum", "reddit"]
-max_lengths = [1024, 512, 512]
-train_sizes = [287113, 204045, 33704]
-first_half_train_sizes = [143000, 102000, 17000]
-second_half_train_sizes = [144113, 102045, 16704]
-val_sizes = [13368, 11332, 4213]
-test_sizes = [11490, 11334, 4222]
-lrs_pegasus = [5e-5, 1e-4, 1e-4]
-lrs_barts = [3e-5, 3e-5, 3e-5]
-eval_every_pegasus = [300, 250, 100]
-eval_every_bart = [500, 250, 100]
-max_summary_lengths = [128, 64, 64]
-length_penalties_pegasus = [0.8, 0.8, 0.6]
-length_penalties_bart = [0.8, 0.8, 1.0]
-no_repeat_ngram_sizes_pegasus = [0, 3, 3]
-no_repeat_ngram_sizes_bart = [0, 3, 3]
-highlights = [True, False, False]
-clean_ns = [True, False, False]
+dataset_names = ["xsum", "reddit", "samsum"]
+max_lengths = [512, 512, 512]
+train_sizes = [204045, 33704, 14732]
+first_half_train_sizes = [102000, 17000, 7350]
+second_half_train_sizes = [102045, 16704, 7382]
+val_sizes = [11332, 4213, 818]
+test_sizes = [11334, 4222, 819]
+lrs = [1e-4, 1e-4, 1e-4]
+eval_every = [250, 100, 50]
+max_summary_lengths = [64, 64, 64]
+length_penalties = [0.8, 0.6, 0.8]
+no_repeat_ngram_sizes = [3, 3, 0]
 
 idx = dataset_names.index(args.dataset)
 args.data_folder = "../../data/{}".format(args.dataset)
@@ -117,45 +133,39 @@ args.train_size = train_sizes[idx]
 args.val_size = val_sizes[idx]
 args.test_size = test_sizes[idx]
 # optimization
-if args.model_type == "pegasus":
-    args.fp16 = False
-    args.adafactor = True
-    args.lr = lrs_pegasus[idx]
-    args.train_bs = 2
-    args.scheduler = "constant"
-    args.warmup_ratio = 0
-    args.gradient_accumulation_steps = 128
-    if args.eval_every < 0:
-        args.eval_every = eval_every_pegasus[idx]
-elif args.model_type == "bart":
-    args.fp16 = True
-    args.adafactor = False
-    args.lr = lrs_barts[idx]
-    args.train_bs = 4
-    args.scheduler = "linear"
-    args.warmup_ratio = 0.025
-    args.gradient_accumulation_steps = 20
-    if args.eval_every < 0:
-        args.eval_every = eval_every_bart[idx]
+args.fp16 = False
+args.adafactor = True
+args.lr = lrs[idx]
+args.train_bs = 2
+args.scheduler = "constant"
+args.warmup_ratio = 0
+args.gradient_accumulation_steps = 128
+if args.eval_every < 0:
+    args.eval_every = eval_everys[idx]
 args.max_summary_length = max_summary_lengths[idx]
 # summary generation
-if args.model_type == "pegasus":
-    args.length_penalty = length_penalties_pegasus[idx]
-    args.no_repeat_ngram_size = no_repeat_ngram_sizes_pegasus[idx]
-    args.num_beams = 8
-elif args.model_type == "bart":
-    args.length_penalty = length_penalties_bart[idx]
-    args.no_repeat_ngram_size = no_repeat_ngram_sizes_bart[idx]
-    args.num_beams = 5
-args.highlights = highlights[idx]
-args.clean_n = clean_ns[idx]
+args.length_penalty = length_penalties_pegasus[idx]
+args.no_repeat_ngram_size = no_repeat_ngram_sizes_pegasus[idx]
+args.num_beams = 8
 
-if args.evaluation_method == "loss":
-    args.metric_for_best_model = "loss"
-    args.greater_is_better = False
-elif args.evaluation_method == "generation":
-    args.metric_for_best_model = "mean_r"
-    args.greater_is_better = True
+if "_10_" in args.train_dataset or "_100_" in args.train_dataset or "_1000_" in args.train_dataset:
+    args.n_epochs = 15
+if "train_10_" in args.train_dataset:
+    print("10-shot")
+    args.eval_every = 5
+    args.train_bs = 1
+    args.gradient_accumulation_steps = 5
+if "train_100_" in args.train_dataset:
+    print("100-shot")
+    args.eval_every = 10
+    args.gradient_accumulation_steps = 8
+if "train_1000_" in args.train_dataset:
+    print("1000-shot")
+    args.eval_every = 10
+    args.gradient_accumulation_steps = 32
+
+args.metric_for_best_model = "mean_r"
+args.greater_is_better = True
 
 if args.debug:
     args.max_val_size = 10
@@ -397,50 +407,43 @@ class CustomTrainer(Trainer):
             total_size += bs
 
             # Prediction step
-            if args.evaluation_method == "loss":
-                loss, _, _ = self.prediction_step(model, inputs, prediction_loss_only, ignore_keys=ignore_keys)
-                all_losses += loss.item() * bs
-            elif args.evaluation_method == "generation":
-                summary_ids = model.pretrained_model.generate(
-                    inputs['text_input_ids'].cuda(),
-                    attention_mask=inputs["text_attention_mask"].cuda(),
-                    use_cache=True,
-                    num_beams=args.num_beams,
-                    num_return_sequences=1,
-                    # min_length = args.min_summary_length,
-                    max_length=args.max_summary_length,
-                    early_stopping=True,
-                    repetition_penalty=args.repetition_penalty,
-                    length_penalty=args.length_penalty,
-                    no_repeat_ngram_size=args.no_repeat_ngram_size
-                )
-                summaries = self.tokenizer.batch_decode(summary_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True)
-                labels_ids = inputs["summary_input_ids"]
-                labels = self.tokenizer.batch_decode(labels_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True)
-                temp_r1s, temp_r2s, temp_rls = [], [], []
-                for j in range(len(summaries)):
-                    label = labels[j]
-                    summary = summaries[j]
-                    summary = pre_rouge_processing(summary, args)
-                    rouge_scores = scorer.score(label, summary)
-                    r1 = rouge_scores["rouge1"].fmeasure
-                    r2 = rouge_scores["rouge2"].fmeasure
-                    rl = rouge_scores["rougeLsum"].fmeasure
-                    temp_r1s.append(r1)
-                    temp_r2s.append(r2)
-                    temp_rls.append(rl)
-                all_r1s += np.mean(temp_r1s) * bs
-                all_r2s += np.mean(temp_r2s) * bs
-                all_rls += np.mean(temp_rls) * bs
+            summary_ids = model.pretrained_model.generate(
+                inputs['text_input_ids'].cuda(),
+                attention_mask=inputs["text_attention_mask"].cuda(),
+                use_cache=True,
+                num_beams=args.num_beams,
+                num_return_sequences=1,
+                # min_length = args.min_summary_length,
+                max_length=args.max_summary_length,
+                early_stopping=True,
+                repetition_penalty=args.repetition_penalty,
+                length_penalty=args.length_penalty,
+                no_repeat_ngram_size=args.no_repeat_ngram_size
+            )
+            summaries = self.tokenizer.batch_decode(summary_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+            labels_ids = inputs["summary_input_ids"]
+            labels = self.tokenizer.batch_decode(labels_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+            temp_r1s, temp_r2s, temp_rls = [], [], []
+            for j in range(len(summaries)):
+                label = labels[j]
+                summary = summaries[j]
+                summary = pre_rouge_processing(summary, args)
+                rouge_scores = scorer.score(label, summary)
+                r1 = rouge_scores["rouge1"].fmeasure
+                r2 = rouge_scores["rouge2"].fmeasure
+                rl = rouge_scores["rougeLsum"].fmeasure
+                temp_r1s.append(r1)
+                temp_r2s.append(r2)
+                temp_rls.append(rl)
+            all_r1s += np.mean(temp_r1s) * bs
+            all_r2s += np.mean(temp_r2s) * bs
+            all_rls += np.mean(temp_rls) * bs
 
         metrics = {}
-        if args.evaluation_method == "loss":
-            metrics["eval_loss"] = all_losses / total_size
-        elif args.evaluation_method == "generation":
-            metrics["r1"] = 100 * all_r1s / total_size
-            metrics["r2"] = 100 * all_r2s / total_size
-            metrics["rl"] = 100 * all_rls / total_size
-            metrics["eval_mean_r"] = (metrics["r1"] + metrics["r2"] + metrics["rl"]) / 3
+        metrics["r1"] = 100 * all_r1s / total_size
+        metrics["r2"] = 100 * all_r2s / total_size
+        metrics["rl"] = 100 * all_rls / total_size
+        metrics["eval_mean_r"] = (metrics["r1"] + metrics["r2"] + metrics["rl"]) / 3
         print(metrics)
 
         return metrics

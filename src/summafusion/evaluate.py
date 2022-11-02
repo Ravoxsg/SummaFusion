@@ -36,9 +36,8 @@ parser.add_argument('--few_shot_seed', type=int, default=42)
 
 # data
 parser.add_argument('--dataset', type=str, default="samsum")
-parser.add_argument('--generation_methods', type=str, default="diverse_beam_search",
-                    choices=["beam_search", "diverse_beam_search", "top_p_sampling", "top_k_sampling"])
-parser.add_argument('--scoring_methods', type=list, default=["rouge_1", "rouge_2", "rouge_l"])
+parser.add_argument('--generation_method_str', type = str, default = "diverse_beam_search")
+parser.add_argument('--scoring_methods_str', type=str, default = "rouge_1+rouge_2+rouge_l")
 parser.add_argument('--sep_symbol', type=str, default="[SEP]")
 # val
 parser.add_argument('--val_dataset', type=str, default="few_shot_default_val",
@@ -74,15 +73,8 @@ parser.add_argument('--shuffle_candidates', type=bool, default=False)
 # fusion model
 # general
 parser.add_argument('--model', type=str, default="facebook/bart-large")
-parser.add_argument('--model_type', type=str, default="bart_source_5b")
 parser.add_argument('--cache_dir', type=str, default=root + "hf_models/bart-large/")
 parser.add_argument('--hidden_size', type=int, default=1024)  # 768 / 1024
-# loss
-parser.add_argument('--manual_loss', type=bool, default=True)
-parser.add_argument('--weight_new_tokens', type=bool, default=False)
-parser.add_argument('--new_tokens_weight', type=float, default=10)
-parser.add_argument('--weight_long_sequences', type=bool, default=False)
-parser.add_argument('--long_sequences_weight', type=float, default=3)
 # classification
 parser.add_argument('--classify_candidates', type=bool, default=True)
 parser.add_argument('--cls_loss_weight', type=float, default=1)
@@ -110,10 +102,9 @@ parser.add_argument('--eval_new_ngram', type=bool, default=True)
 # summary generation
 parser.add_argument('--num_return_sequences', type=int, default=1)  # default: 1
 parser.add_argument('--num_gen_beams', type=int, default=10)  # default: 15
-
-### other generation hyper-parameters
 parser.add_argument('--repetition_penalty', type=float, default=1.0)  # 1.0
 parser.add_argument('--length_penalty', type=float, default=1.0)
+
 # evaluation
 parser.add_argument('--stemmer', type=bool, default=True)
 parser.add_argument('--n_show_summaries', type=int, default=0)
@@ -133,11 +124,12 @@ parser.add_argument('--n_ablation_candidates', type=list, default=[0, 1, 3, 5, 1
 parser.add_argument('--evaluate_without_source', type=bool, default=False)
 
 args = parser.parse_args()
+args.generation_methods = args.generation_methods_str.split("+")
+args.scoring_methods = args.scoring_methods_str.split("+")
 args.n_tasks = len(args.scoring_methods)
 
 dataset_names = ["xsum", "reddit", "samsum"]
 folder_names = ["XSum", "Reddit", "SAMSum"]
-highlights = [False, False, False]
 val_sizes = [11332, 4213, 818]
 test_sizes = [11334, 4222, 819]
 model_names = ["pegasus_xsum", "pegasus_reddit_train_1", "pegasus_samsum_train_4"]
@@ -145,15 +137,12 @@ max_canditate_lengths_95 = [34, 43, 42]
 max_summary_lengths = [64, 64, 64]
 max_gen_summary_lengths = [64, 64, 64]
 no_repeat_ngram_sizes = [3, 3, 3]
-clean_ns = [False, False, False]
-rouge_threshs = [40, 27.76, 50]
 
 idx = dataset_names.index(args.dataset)
 
 args.data_folder = root + "../../data/".format(folder_names[idx])
 args.scored_summaries_path = "../../scored_summaries/{}/".format(folder_names[idx])
 args.generation_methods = args.generation_methods.split(",")
-args.highlights = highlights[idx]
 if args.val_dataset == "val":
     args.val_size = val_sizes[idx]
 elif args.val_dataset == "test":
@@ -163,8 +152,6 @@ args.max_candidate_length = max_canditate_lengths_95[idx]
 args.max_summary_length = max_summary_lengths[idx]  # ground truth
 args.max_gen_summary_length = max_gen_summary_lengths[idx]  # fusion summary
 args.no_repeat_ngram_size = no_repeat_ngram_sizes[idx]
-args.clean_n = clean_ns[idx]
-args.rouge_thresh = rouge_threshs[idx]
 
 model_names_few_shot = [
     "pegasus_xsum_train_{}_seed_{}_1".format(args.few_shot_size, args.few_shot_seed),
@@ -208,7 +195,7 @@ def main(args):
     # data
     set = args.val_dataset
     size = args.val_size
-    texts, summaries, scored_summaries = load_data(set, size, args, individual_txt=args.highlights)
+    texts, summaries, scored_summaries = load_data(set, size, args)
     print("\nLoaded new data!", len(texts), len(summaries), len(scored_summaries), len(scored_summaries[0]),
           len(scored_summaries[0][0]), len(scored_summaries[0][1]))
     texts = texts[:args.max_val_size]

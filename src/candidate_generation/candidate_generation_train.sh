@@ -1,13 +1,12 @@
 # Model trained on 1st training half => infer on 2nd training half
 python main_candidate_generation.py \
---dataset reddit \
---val_dataset second_half_train_shuffled \
---model_type pegasus \
+--dataset samsum \
+--val_dataset second_half_train_100_seed_42_shuffled \
 --model google/pegasus-large \
---model_name pegasus_reddit_first_half_shuffled_1 \
+--model_name pegasus_samsum_first_half_train_100_seed_42_shuffled_1 \
 --cache_dir ../../../hf_models/pegasus-large \
 --load_model True \
---load_model_path ../base_model_finetuning/ft_saved_models/reddit/pegasus_reddit_first_half_shuffled_1/checkpoint-5/pytorch_model.bin \
+--load_model_path ../base_model_finetuning/few_shot_ft_saved_models/samsum/pegasus_samsum_first_half_train_100_seed_42_shuffled_1/checkpoint-40/pytorch_model.bin \
 --inference_bs 2 \
 --save_summaries True \
 --generation_method diverse_beam_search \
@@ -17,14 +16,13 @@ python main_candidate_generation.py \
 
 # Model trained on 2nd training half => infer on 1st training half
 python main_candidate_generation.py \
---dataset reddit \
---val_dataset first_half_train_shuffled \
---model_type pegasus \
+--dataset samsum \
+--val_dataset first_half_train_100_seed_42_shuffled \
 --model google/pegasus-large \
---model_name pegasus_reddit_second_half_shuffled_1 \
+--model_name pegasus_samsum_second_half_train_100_seed_42_shuffled_1 \
 --cache_dir ../../../hf_models/pegasus-large \
 --load_model True \
---load_model_path ../base_model_finetuning/ft_saved_models/reddit/pegasus_reddit_second_half_shuffled_1/checkpoint-5/pytorch_model.bin \
+--load_model_path ../base_model_finetuning/few_shot_ft_saved_models/samsum/pegasus_samsum_second_half_train_100_seed_42_shuffled_1/checkpoint-40/pytorch_model.bin \
 --inference_bs 2 \
 --save_summaries True \
 --generation_method diverse_beam_search \
@@ -34,14 +32,13 @@ python main_candidate_generation.py \
 
 # Model trained on entire training set => infer on validation set
 python main_candidate_generation.py \
---dataset reddit \
---val_dataset val \
---model_type pegasus \
+--dataset samsum \
+--val_dataset val_100_seed_42 \
 --model google/pegasus-large \
---model_name pegasus_reddit_train_1 \
+--model_name pegasus_samsum_train_100_seed_42_1 \
 --cache_dir ../../../hf_models/pegasus-large \
 --load_model True \
---load_model_path ../base_model_finetuning/ft_saved_models/reddit/pegasus_reddit_train_1/checkpoint-5/pytorch_model.bin \
+--load_model_path ../base_model_finetuning/few_shot_ft_saved_models/samsum/pegasus_samsum_train_100_seed_42_1/checkpoint-90/pytorch_model.bin \
 --inference_bs 2 \
 --save_summaries True \
 --generation_method diverse_beam_search \
@@ -51,14 +48,13 @@ python main_candidate_generation.py \
 
 # Model trained on entire training set => infer on test set
 python main_candidate_generation.py \
---dataset reddit \
+--dataset samsuk \
 --val_dataset test \
---model_type pegasus \
 --model google/pegasus-large \
 --model_name pegasus_reddit_train_1 \
 --cache_dir ../../../hf_models/pegasus-large \
 --load_model True \
---load_model_path ../base_model_finetuning/ft_saved_models/reddit/pegasus_reddit_train_1/checkpoint-5/pytorch_model.bin \
+--load_model_path ../base_model_finetuning/few_shot_ft_saved_models/samsum/pegasus_samsum_train_100_seed_42_1/checkpoint-90/pytorch_model.bin \
 --inference_bs 2 \
 --save_summaries True \
 --generation_method diverse_beam_search \

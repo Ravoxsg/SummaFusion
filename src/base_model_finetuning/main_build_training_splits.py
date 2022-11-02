@@ -17,19 +17,28 @@ from common.utils import seed_everything
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--seed', type = int, default = 42)
-parser.add_argument('--dataset', type=str, default = "reddit",
-                    choices=["cnndm", "xsum", "reddit"])
+parser.add_argument('--dataset', type=str, default = "samsum",
+                    choices=["xsum", "reddit", "samsum"])
+parser.add_argument('--few_shot', type = bool, default = True)
+parser.add_argument('--training_set', type = str, default = "train_100_seed_42",
+                    choices = [
+                        "train",
+                        "train_10_seed_42", "train_10_seed_43", "train_10_seed_44",
+                        "train_100_seed_42", "train_100_seed_43", "train_100_seed_44",
+                        "train_1000_seed_42", "train_1000_seed_43", "train_1000_seed_44",
+                    ])
 
 args = parser.parse_args()
 
-dataset_names = ["cnndm", "xsum", "reddit"]
-threshs = [143000, 102000, 17000]
-highlights = [True, False, False]
+dataset_names = ["xsum", "reddit", "samsum"]
+threshs = [102000, 17000, 7350]
 
 idx = dataset_names.index(args.dataset)
 args.data_folder = "../../data/{}/".format(args.dataset)
 args.thresh = threshs[idx]
-args.individual_files = highlights[idx]
+if args.few_shot:
+    few_shot_size = int(args.training_set.split("_")[1])
+    args.thresh = int(few_shot_size/2)
 
 print("*"*50)
 print(args)
@@ -67,10 +76,10 @@ def main(args):
     first_half_summaries = train_summaries[:args.thresh]
     first_half_texts = train_texts[:args.thresh]
     print(len(first_half_summaries), len(first_half_texts))
-    with open(args.data_folder + "first_half_train_shuffled_summary.txt", "wb") as f:
+    with open(args.data_folder + "first_half_{}_shuffled_summary.txt".format(args.train_name), "wb") as f:
         for l in first_half_summaries:
             f.write(l)
-    with open(args.data_folder + "first_half_train_shuffled_text.txt", "wb") as f:
+    with open(args.data_folder + "first_half_{}_shuffled_text.txt".format(args.train_name), "wb") as f:
         for l in first_half_texts:
             f.write(l)
 
@@ -78,33 +87,13 @@ def main(args):
     second_half_summaries = train_summaries[args.thresh:]
     second_half_texts = train_texts[args.thresh:]
     print(len(second_half_summaries), len(second_half_texts))
-    with open(args.data_folder + "second_half_train_shuffled_summary.txt", "wb") as f:
+    with open(args.data_folder + "second_half_{}_shuffled_summary.txt".format(args.train_name), "wb") as f:
         for l in second_half_summaries:
             f.write(l)
-    with open(args.data_folder + "second_half_train_shuffled_text.txt", "wb") as f:
+    with open(args.data_folder + "second_half_{}_shuffled_text.txt".format(args.train_name), "wb") as f:
         for l in second_half_texts:
             f.write(l)
             
-    # individual files
-    if args.individual_files:
-        docs = ["summary", "text"]
-        for doc in docs:
-            path = args.data_folder + "train/{}/".format(doc)
-            print(path)
-            idx_first = 0
-            idx_second = 0
-            for i in tqdm(range(len(p))):
-                src_path = path + "train_{}_{}.txt".format(doc, p[i])
-                if i < args.thresh:
-                    dst_path = args.data_folder + "first_half_train_shuffled/{}/first_half_train_shuffled_{}_{}.txt".format(
-                        doc, doc, idx_first)
-                    idx_first += 1
-                else:
-                    dst_path = args.data_folder + "second_half_train_shuffled/{}/second_half_train_shuffled_{}_{}.txt".format(
-                        doc, doc, idx_second)
-                    idx_second += 1
-                copyfile(src_path, dst_path)
-
 
 
 if __name__ == '__main__':

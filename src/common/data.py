@@ -4,33 +4,11 @@ from tqdm import tqdm
 
 
 
-def load_data(set, args, individual_txt=False):
-    if individual_txt:
-        texts, summaries = read_data_files_individual(set, args)
-    else:
-        text_files, summary_files = prepare_data_files(set, args)
-        texts, summaries = read_data_files(set, text_files, summary_files, args)
+def load_data(set, args):
+    text_files, summary_files = prepare_data_files(set, args)
+    texts, summaries = read_data_files(text_files, summary_files)
 
     print("Total # of texts: {}".format(len(texts)))
-
-    return texts, summaries
-
-
-def read_data_files_individual(set, args):
-    texts = []
-    summaries = []
-    set_text_path = "../../data/{}/".format(args.dataset) + set + "/" + "text/"
-    set_summary_path = "../../data/{}".format(args.dataset) + set + "/" + "summary/"
-    n_docs = len(os.listdir(set_text_path))
-    print("There are {} {} documents".format(n_docs, set))
-    for i in tqdm(range(n_docs)):
-        text_path_i = set_text_path + "{}_text_{}.txt".format(set, i)
-        text_i = "".join(open(text_path_i, "r").readlines())
-        texts.append(text_i)
-    for i in tqdm(range(n_docs)):
-        summary_path_i = set_summary_path + "{}_summary_{}.txt".format(set, i)
-        summary_i = "".join(open(summary_path_i, "r").readlines())
-        summaries.append(summary_i)
 
     return texts, summaries
 
@@ -51,22 +29,22 @@ def prepare_data_files(set, args):
     return text_files, summary_files
 
 
-def read_data_files(set, text_files, summary_files, args):
+def read_data_files(text_files, summary_files):
     # read the .txt files
     texts = []
     summaries = []
 
     for text_file in text_files:
-        lines = read_one_file(set, text_file, args)
+        lines = read_one_file(text_file)
         texts += lines
     for summary_file in summary_files:
-        lines = read_one_file(set, summary_file, args)
+        lines = read_one_file(summary_file)
         summaries += lines
 
     return texts, summaries
 
 
-def read_one_file(set, file, args):
+def read_one_file(file):
     lines = []
     with open(file, 'r') as f:
         for l in tqdm(f.readlines()):
