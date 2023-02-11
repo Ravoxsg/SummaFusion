@@ -507,7 +507,6 @@ class GenerationMixin:
         max_source_length = 1024
         if "max_source_length" in model_kwargs.keys():
             max_source_length = model_kwargs["max_source_length"]
-        print("HHHHERE")
         if encoder_kwargs["input_ids"].shape[1] > max_source_length:
             source_encoder = self.get_source_encoder()
 
@@ -516,141 +515,6 @@ class GenerationMixin:
             source_mask = encoder_kwargs["attention_mask"][:, :thresh]
             input_ids = encoder_kwargs["input_ids"][:, thresh:]
             input_mask = encoder_kwargs["attention_mask"][:, thresh:]
-            
-            ### Source2a
-
-            ## hidden state
-            # encode the source
-            #encoder_kwargs["input_ids"] = source_ids
-            #encoder_kwargs["attention_mask"] = source_mask
-            #source_outs = source_encoder(**encoder_kwargs)
-            #source_state = source_outs["last_hidden_state"]
-            # encode the candidates
-            #encoder_kwargs["input_ids"] = input_ids
-            #encoder_kwargs["attention_mask"] = input_mask
-            #input_outs = encoder(**encoder_kwargs)
-            #input_state = input_outs["last_hidden_state"]
-            # average the encoder outputs
-            # state method A
-            #input_outs["last_hidden_state"] = 0.5 * input_state + 0.5 * source_state
-            # state method B
-            #repeated_input_mask = input_mask.unsqueeze(2).repeat(1, 1, input_state.shape[2])
-            #repeated_source_mask = source_mask.unsqueeze(2).repeat(1, 1, source_state.shape[2])
-            #weights = repeated_input_mask + repeated_source_mask
-            #weights[weights == 0] = 1
-            #input_outs["last_hidden_state"] = (repeated_input_mask * input_state + repeated_source_mask * source_state) / weights
-            #model_kwargs["encoder_outputs"]: ModelOutput = input_outs
-            
-            ## attention
-            # attention method A
-            #model_kwargs["attention_mask"] = input_mask
-            # attention method B
-            #model_kwargs["attention_mask"] = source_mask
-            # attention method C
-            #model_kwargs["attention_mask"] = None
-            # attention method D
-            #weights = input_mask + source_mask
-            #weights[weights > 1] = 1
-            #model_kwargs["attention_mask"] = weights 
-
-            ### Source2b
-
-            ## hidden state
-            #fusion_model = self.get_fusion_model()
-            # encode the source
-            #encoder_kwargs["input_ids"] = source_ids
-            #encoder_kwargs["attention_mask"] = source_mask
-            #source_outs = source_encoder(**encoder_kwargs)
-            #source_state = source_outs["last_hidden_state"]
-            # encode the candidates
-            #encoder_kwargs["input_ids"] = input_ids
-            #encoder_kwargs["attention_mask"] = input_mask
-            #input_outs = encoder(**encoder_kwargs)
-            #input_state = input_outs["last_hidden_state"]
-            # average the encoder outputs
-            #h = torch.cat((input_state, source_state), -1)
-            #h = fusion_model(h)
-            #input_outs["last_hidden_state"] = h
-            # update the model kwargs
-            #model_kwargs["encoder_outputs"]: ModelOutput = input_outs
-            #model_kwargs["attention_mask"] = input_mask
-
-            ## attention
-            # attention method A
-            #model_kwargs["attention_mask"] = input_mask
-            # attention method B
-            #model_kwargs["attention_mask"] = source_mask
-            # attention method C
-            #model_kwargs["attention_mask"] = None
-            # attention method D
-            #weights = input_mask + source_mask
-            #weights[weights > 1] = 1
-            #model_kwargs["attention_mask"] = weights
-
-            #### Source3a
-
-            ## hidden state 
-            # encode the source
-            #encoder_kwargs["input_ids"] = source_ids
-            #encoder_kwargs["attention_mask"] = source_mask
-            #encoder_kwargs["source_out"] = None
-            #source_outs = source_encoder(**encoder_kwargs)
-            #source_out = source_outs["last_hidden_state"]
-            # encode the candidates
-            #encoder_kwargs["input_ids"] = input_ids
-            #encoder_kwargs["attention_mask"] = input_mask
-            #encoder_kwargs["source_out"] = source_out
-            #encoder_kwargs["source_mask"] = source_mask
-            #input_outs = encoder(**encoder_kwargs)
-            # update the model kwargs
-            #model_kwargs["encoder_outputs"]: ModelOutput = input_outs
-            #model_kwargs["attention_mask"] = input_mask
-            #model_kwargs["source_out"] = source_out
-            #model_kwargs["source_mask"] = source_mask
-
-            ### Source3b/3c/4
-
-            ## hidden state
-            # encode the source
-            #encoder_kwargs["input_ids"] = source_ids
-            #encoder_kwargs["attention_mask"] = source_mask
-            #del encoder_kwargs["max_source_length"]
-            #source_outs = source_encoder(**encoder_kwargs)
-            #source_out = source_outs["last_hidden_state"]
-            # encode the candidates
-            #encoder_kwargs["input_ids"] = input_ids
-            #encoder_kwargs["attention_mask"] = input_mask
-            #input_outs = encoder(**encoder_kwargs)
-            #  update the model kwargs
-            #model_kwargs["encoder_outputs"]: ModelOutput = input_outs
-            #model_kwargs["attention_mask"] = input_mask
-            #model_kwargs["source_out"] = source_out
-            #model_kwargs["source_mask"] = source_mask
-
-            ### Source5a
-
-            ## hidden state
-            # encode the source
-            #encoder_kwargs["input_ids"] = source_ids
-            #encoder_kwargs["attention_mask"] = source_mask
-            #encoder_kwargs["candidates"] = False
-            #source_outs = source_encoder(**encoder_kwargs)
-            #source_out = source_outs["last_hidden_state"]
-            # encode the candidates
-            #encoder_kwargs["input_ids"] = input_ids
-            #encoder_kwargs["attention_mask"] = input_mask
-            #encoder_kwargs["candidates"] = True
-            #input_outs = encoder(**encoder_kwargs)
-            # update the model kwargs
-            #encoder_output = torch.cat((source_out[:, 0:1, :], input_outs["last_hidden_state"]), dim = 1)
-            #input_outs["last_hidden_state"] = encoder_output
-            #input_mask = torch.ones((encoder_output.shape[0], encoder_output.shape[1])).to(encoder_output.device)
-            #model_kwargs["encoder_outputs"]: ModelOutput = input_outs
-            #model_kwargs["attention_mask"] = input_mask
-            #model_kwargs["source_out"] = source_out
-            #model_kwargs["source_mask"] = source_mask
-
-            ### Source5b/5c
 
             ## hidden state
             # encode the source
@@ -660,19 +524,13 @@ class GenerationMixin:
             del encoder_kwargs["max_source_length"]
             source_outs, _ = source_encoder(**encoder_kwargs)
             source_out = source_outs["last_hidden_state"]
-            print("source", source_out.shape)
             # encode the candidates
-            print(input_ids.shape, input_mask.shape)
-            print(encoder_kwargs.keys())
-            print(encoder_kwargs["use_source"])
-            print(encoder_kwargs["use_candidates"])
             encoder_kwargs["input_ids"] = input_ids
             encoder_kwargs["attention_mask"] = input_mask
             encoder_kwargs["candidates"] = True
             encoder_kwargs["source_encodings"] = source_out
             input_outs, _ = encoder(**encoder_kwargs)
             thresh = input_outs[0].shape[1]
-            print("cands", input_outs[0].shape)
             # update the model kwargs
             to_cat = []
             if model_kwargs["use_source"] == True:

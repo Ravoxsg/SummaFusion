@@ -420,7 +420,6 @@ class BartEncoder(BartPretrainedModel):
                         start = (self.args.n_candidates_to_use + j) * candidate_size
                         end = (self.args.n_candidates_to_use + j + 1) * candidate_size
                         embed_pos_j = self.embed_positions((inputs_embeds.shape[0], candidate_size))
-                        print(self.args.n_candidates_to_use, j, candidate_size, start, end, inputs_embeds.shape)
                         hidden_states = inputs_embeds[:, start:end, :] + embed_pos_j
                         hidden_states = self.layernorm_embedding(hidden_states)
                         hidden_states = nn.functional.dropout(hidden_states, p=self.dropout, training=self.training)
@@ -862,9 +861,7 @@ class BartModel(BartPretrainedModel):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         cls_outputs = None
-        #print("encoder_outputs", encoder_outputs.shape)
         if encoder_outputs is None:
-            print("HERE 2")
             encoder_outputs, cls_outputs = self.encoder(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
