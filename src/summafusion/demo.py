@@ -1,3 +1,5 @@
+# Complete SummaFusion generation inference pipeline in a single small script!
+
 import sys
 sys.path.append("/data/mathieu/SummaFusion/src/")
 import numpy as np
@@ -20,6 +22,7 @@ args.use_source = True
 args.use_candidates = True
 args.classify_candidates = True
 args.hidden_size = 1024
+args.use_ss_for_cls = False
 args.use_source_for_cls = True
 args.cls_hidden_size = 2048
 args.scoring_methods = ["rouge_1", "rouge_2", "rouge_l"]
@@ -81,10 +84,15 @@ for j in range(len(candidates)):
 # model
 model_name = "facebook/bart-large"
 tokenizer = BartTokenizerFast.from_pretrained(model_name, cache_dir="/data/mathieu/hf_models/bart-large/")
-model = BartForConditionalGeneration.from_pretrained(model_name, args=None, cache_dir="/data/mathieu/hf_models/bart-large/")
+for j in range(args.n_candidates_to_use):
+    tokenizer.add_tokens(["CAND_{}".format(j)])
+model = BartForConditionalGeneration.from_pretrained(model_name, args=args, cache_dir="/data/mathieu/hf_models/bart-large/")
 model = model.cuda()
-summafusion_model = ModelAbstractiveFusion(model, tokenizer, None)
+summafusion_model = ModelAbstractiveFusion(model, tokenizer, args)
+summafusion_model.model.resize_token_embeddings(len(tokenizer))
 summafusion_model = summafusion_model.cuda()
+summafusion_model_path = "/data/mathieu/2nd_stage_summarization/5_abstractive_fusion/saved_models/xsum/fusion_main_5/pytorch_model.bin"
+summafusion_model.load_state_dict(torch.load(summafusion_model_path))
 # prepare the data
 candidates_inputs, candidates_masks = [], []
 for j in range(len(candidates)):
@@ -97,20 +105,22 @@ for j in range(len(candidates)):
     candidates_masks.append(candidate_inputs["attention_mask"][0])
 candidates_inputs = torch.cat(candidates_inputs)
 candidates_masks = torch.cat(candidates_masks)
-print(candidates_inputs.shape, candidates_masks.shape)
 source_inputs = tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=args.max_source_length)
 source_ids = source_inputs["input_ids"][:, :args.max_source_length]
 source_mask = source_inputs["attention_mask"][:, :args.max_source_length]
 batch = {
-        "cand_ids": candidates_inputs.unsqueeze(0),
-        "cand_mask": candidates_masks.unsqueeze(0),
-        "source_ids": source_ids,
-        "source_mask": source_mask
+    "cand_ids": candidates_inputs.unsqueeze(0),
+    "cand_mask": candidates_masks.unsqueeze(0),
+    "source_ids": source_ids,
+    "source_mask": source_mask
 }
 # inference
+args.classify_candidates = False
 gm = GenerationMixin
 generated = generation_step(batch, tokenizer, summafusion_model, gm, args)
-print(generated)
+summary = generate[0]
+print("\nSummaFusion output summary:")
+print(summary)
 
 
 
