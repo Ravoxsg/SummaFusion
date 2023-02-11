@@ -507,6 +507,7 @@ class GenerationMixin:
         max_source_length = 1024
         if "max_source_length" in model_kwargs.keys():
             max_source_length = model_kwargs["max_source_length"]
+        print("HHHHERE")
         if encoder_kwargs["input_ids"].shape[1] > max_source_length:
             source_encoder = self.get_source_encoder()
 
@@ -659,13 +660,19 @@ class GenerationMixin:
             del encoder_kwargs["max_source_length"]
             source_outs, _ = source_encoder(**encoder_kwargs)
             source_out = source_outs["last_hidden_state"]
+            print("source", source_out.shape)
             # encode the candidates
+            print(input_ids.shape, input_mask.shape)
+            print(encoder_kwargs.keys())
+            print(encoder_kwargs["use_source"])
+            print(encoder_kwargs["use_candidates"])
             encoder_kwargs["input_ids"] = input_ids
             encoder_kwargs["attention_mask"] = input_mask
             encoder_kwargs["candidates"] = True
             encoder_kwargs["source_encodings"] = source_out
             input_outs, _ = encoder(**encoder_kwargs)
             thresh = input_outs[0].shape[1]
+            print("cands", input_outs[0].shape)
             # update the model kwargs
             to_cat = []
             if model_kwargs["use_source"] == True:
