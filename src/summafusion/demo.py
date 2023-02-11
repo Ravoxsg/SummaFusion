@@ -43,7 +43,7 @@ seed_everything(42)
 dataset_name = "xsum"
 subset = "test"
 text_key = "document"
-dataset = load_dataset(dataset_name, cache_dir="data/mathieu/hf_datasets/")
+dataset = load_dataset(dataset_name, cache_dir="/data/mathieu/hf_datasets/")
 dataset = dataset[subset]
 texts = dataset[text_key]
 p = np.random.permutation(len(texts))
@@ -118,7 +118,7 @@ batch = {
 args.classify_candidates = False
 gm = GenerationMixin
 generated = generation_step(batch, tokenizer, summafusion_model, gm, args)
-summary = generate[0]
+summary = generated[0]
 print("\nSummaFusion output summary:")
 print(summary)
 
