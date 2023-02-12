@@ -108,14 +108,18 @@ candidates_masks = torch.cat(candidates_masks)
 source_inputs = tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=args.max_source_length)
 source_ids = source_inputs["input_ids"][:, :args.max_source_length]
 source_mask = source_inputs["attention_mask"][:, :args.max_source_length]
+cand_ids = candidates_inputs.unsqueeze(0)
+cand_mask = candidates_masks.unsqueeze(0)
+cand_ids = torch.cat((source_ids, cand_ids), -1)
+cand_mask = torch.cat((source_mask, cand_mask), -1)
 batch = {
-    "cand_ids": candidates_inputs.unsqueeze(0),
-    "cand_mask": candidates_masks.unsqueeze(0),
+    "cand_ids": cand_ids,
+    "cand_mask": cand_mask,
     "source_ids": source_ids,
     "source_mask": source_mask
 }
 # inference
-args.classify_candidates = False
+#args.classify_candidates = False
 gm = GenerationMixin
 generated = generation_step(batch, tokenizer, summafusion_model, gm, args)
 summary = generated[0]
