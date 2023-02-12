@@ -47,6 +47,13 @@ For instance on SAMSum 100-shot (default code):
 bash few_shot.sh
 ```
 
+## DEMO 
+If you just want a demo (in a single file) of SummaFusion on a single data point, run:
+```
+cd src/summafusion/
+CUDA_VISIBLE_DEVICES=0 python demo.py
+```
+
 ## EVALUATION pipeline 
 
 ### 1 - Generate summary candidates
