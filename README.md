@@ -48,7 +48,7 @@ bash few_shot.sh
 ```
 
 ## DEMO 
-If you just want a demo (in a single file) of SummaFusion on a single data point, run:
+If you just want a demo (in a single file) of SummaFusion on a single data point (default: XSum), run:
 ```
 cd src/summafusion/
 CUDA_VISIBLE_DEVICES=0 python demo.py
