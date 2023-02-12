@@ -119,12 +119,8 @@ batch = {
     "source_mask": source_mask
 }
 # inference
-#args.classify_candidates = False
 gm = GenerationMixin
 generated = generation_step(batch, tokenizer, summafusion_model, gm, args)
 summary = generated[0]
 print("\nSummaFusion output summary:")
 print(summary)
-
-
-
