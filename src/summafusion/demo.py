@@ -41,7 +41,7 @@ args.length_penalty = 0.8
 args.no_repeat_ngram_size = 3
 
 # seed
-seed_everything(42)
+seed_everything(50)
 
 # data
 dataset_name = "xsum"
@@ -91,15 +91,12 @@ candidates = base_tokenizer.batch_decode(generated, skip_special_tokens=True)
 scorer = rouge_scorer.RougeScorer(['rouge1', 'rouge2', 'rougeLsum'], use_stemmer = True)
 print("\nSummary candidates:")
 for j in range(len(candidates)):
-    candidates[j] = candidates[j].replace("<n>", " ")
-    candidates[j] = "\n".join(sent_tokenize(candidates[j]))
     rouge_scores = scorer.score(label, candidates[j])
     r1 = 100 * rouge_scores["rouge1"].fmeasure
     r2 = 100 * rouge_scores["rouge2"].fmeasure
     rl = 100 * rouge_scores["rougeLsum"].fmeasure
     mean_r = (r1 + r2 + rl) / 3
     print("\nCandidates {} (Mean R: {:.2f}, R-1: {:.2f}, R-2: {:.2f}, R-L: {:.2f})".format(j, mean_r, r1, r2, rl))
-    candidates[j] = candidates[j].replace("\n", " ")
     print(candidates[j])
 
 del base_model
@@ -151,5 +148,10 @@ gm = GenerationMixin
 with torch.no_grad():
     generated = generation_step(batch, tokenizer, summafusion_model, gm, args)
 summary = generated[0]
-print("\nSummaFusion output summary:")
+rouge_scores = scorer.score(label, summary)
+r1 = 100 * rouge_scores["rouge1"].fmeasure
+r2 = 100 * rouge_scores["rouge2"].fmeasure
+rl = 100 * rouge_scores["rougeLsum"].fmeasure
+mean_r = (r1 + r2 + rl) / 3
+print("\nSummaFusion output summary (Mean R: {:.2f}, R-1: {:.2f}, R-2: {:.2f}, R-L: {:.2f})".format(mean_r, r1, r2, rl))
 print(summary)
