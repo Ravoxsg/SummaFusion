@@ -4,14 +4,12 @@ import argparse
 import sys
 import time
 import torch.nn as nn
-
 sys.path.append("/data/mathieu/SummaFusion/src/")
-
 from tqdm import tqdm
 from torch.utils.data.dataloader import DataLoader
 from sklearn.metrics import roc_auc_score
 
-from common.utils import seed_everything
+from common.utils import seed_everything, boolean_string
 from common.evaluation import *
 from common.data_scored import load_data
 from utils import *
@@ -22,15 +20,14 @@ from engine import validate
 from evaluation_utils import *
 
 
-
 parser = argparse.ArgumentParser()
 
 root = "/data/mathieu/"
 
 parser.add_argument('--seed', type=int, default=42)
-parser.add_argument('--cuda', type=bool, default=True)
-parser.add_argument('--fp16', type=bool, default=True)
-parser.add_argument('--few_shot', type=bool, default=True)
+parser.add_argument('--cuda', type=boolean_string, default=True)
+parser.add_argument('--fp16', type=boolean_string, default=True)
+parser.add_argument('--few_shot', type=boolean_string, default=True)
 parser.add_argument('--few_shot_size', type=int, default=100)
 parser.add_argument('--few_shot_seed', type=int, default=42)
 
@@ -51,24 +48,24 @@ parser.add_argument('--num_beams', type=int, default=15)
 # input
 parser.add_argument('--max_source_length', type=int, default=1024)
 parser.add_argument('--n_candidates', type=int, default=15)
-parser.add_argument('--use_source', type=bool, default=True)
-parser.add_argument('--use_candidates', type=bool, default=True)
+parser.add_argument('--use_source', type=boolean_string, default=True)
+parser.add_argument('--use_candidates', type=boolean_string, default=True)
 # ordering
-parser.add_argument('--encode_position', type=bool, default=True)
-parser.add_argument('--full_position_encoding', type=bool, default=False)
+parser.add_argument('--encode_position', type=boolean_string, default=True)
+parser.add_argument('--full_position_encoding', type=boolean_string, default=False)
 parser.add_argument('--position_symbol', type=str, default="CAND_")
-parser.add_argument('--encode_generation_method', type=bool, default=False)
+parser.add_argument('--encode_generation_method', type=boolean_string, default=False)
 # subsetting
 parser.add_argument('--n_candidates_to_use', type=int, default=15)
 # subsampling
-parser.add_argument('--source_dropout', type=bool, default=False)
+parser.add_argument('--source_dropout', type=boolean_string, default=False)
 parser.add_argument('--source_dropout_prob', type=float, default=0.2)
-parser.add_argument('--source_dropout_at_inference', type=bool, default=False)
+parser.add_argument('--source_dropout_at_inference', type=boolean_string, default=False)
 parser.add_argument('--n_subsample_low', type=int, default=2)
 parser.add_argument('--n_subsample_high', type=int, default=15)
-parser.add_argument('--subsample_at_inference', type=bool, default=False)
+parser.add_argument('--subsample_at_inference', type=boolean_string, default=False)
 # shuffling
-parser.add_argument('--shuffle_candidates', type=bool, default=False)
+parser.add_argument('--shuffle_candidates', type=boolean_string, default=False)
 
 # fusion model
 # general
@@ -76,28 +73,28 @@ parser.add_argument('--model', type=str, default="facebook/bart-large")
 parser.add_argument('--cache_dir', type=str, default=root + "hf_models/bart-large/")
 parser.add_argument('--hidden_size', type=int, default=1024)  # 768 / 1024
 # classification
-parser.add_argument('--classify_candidates', type=bool, default=True)
+parser.add_argument('--classify_candidates', type=boolean_string, default=True)
 parser.add_argument('--cls_loss_weight', type=float, default=1)
 parser.add_argument('--cls_hidden_size', type=int, default=2048)  # 1024 / 2048
-parser.add_argument('--use_source_for_cls', type=bool, default=True)
-parser.add_argument('--use_ss_for_cls', type=bool, default=False)
+parser.add_argument('--use_source_for_cls', type=boolean_string, default=True)
+parser.add_argument('--use_ss_for_cls', type=boolean_string, default=False)
 # weights
-parser.add_argument('--load_model', type=bool, default=True)
+parser.add_argument('--load_model', type=boolean_string, default=True)
 parser.add_argument('--load_model_path', type=str, default= "few_shot_100_seed_42")
 # optimization
 parser.add_argument('--inference_bs', type=int, default=4)
 
 # metrics
 # 1 - ROUGE
-parser.add_argument('--eval_rouge', type=bool, default=True)
+parser.add_argument('--eval_rouge', type=boolean_string, default=True)
 # 2 - BERTScore
-parser.add_argument('--eval_bertscore', type=bool, default=False)
+parser.add_argument('--eval_bertscore', type=boolean_string, default=False)
 # 3 - BARTScore
-parser.add_argument('--eval_bartscore', type=bool, default=False)
+parser.add_argument('--eval_bartscore', type=boolean_string, default=False)
 # 4 - Copying
-parser.add_argument('--eval_ngram_copying', type=bool, default=False)
+parser.add_argument('--eval_ngram_copying', type=boolean_string, default=False)
 # 5 - Abstractiveness
-parser.add_argument('--eval_new_ngram', type=bool, default=True)
+parser.add_argument('--eval_new_ngram', type=boolean_string, default=True)
 
 # summary generation
 parser.add_argument('--num_return_sequences', type=int, default=1)  # default: 1
@@ -106,22 +103,22 @@ parser.add_argument('--repetition_penalty', type=float, default=1.0)  # 1.0
 parser.add_argument('--length_penalty', type=float, default=1.0)
 
 # evaluation
-parser.add_argument('--stemmer', type=bool, default=True)
+parser.add_argument('--stemmer', type=boolean_string, default=True)
 parser.add_argument('--n_show_summaries', type=int, default=0)
 
 # evaluation aspects
-parser.add_argument('--evaluate_candidates_abstractiveness', type=bool, default=True)
-parser.add_argument('--evaluate_new_summaries', type=bool, default=True)
-parser.add_argument('--show_distribution_over_candidates', type=bool, default=False)
+parser.add_argument('--evaluate_candidates_abstractiveness', type=boolean_string, default=True)
+parser.add_argument('--evaluate_new_summaries', type=boolean_string, default=True)
+parser.add_argument('--show_distribution_over_candidates', type=boolean_string, default=False)
 parser.add_argument('--n_bins', type=int, default=10)
-parser.add_argument('--evaluate_per_summary_quality', type=bool, default=False)
-parser.add_argument('--evaluate_per_summary_diversity', type=bool, default=False)
-parser.add_argument('--evaluate_per_source_length', type=bool, default=False)
-parser.add_argument('--evaluate_per_target_ratio', type=bool, default=False)
-parser.add_argument('--evaluate_break_oracle', type=bool, default=False)
-parser.add_argument('--evaluate_ablation_candidates', type=bool, default=False)
+parser.add_argument('--evaluate_per_summary_quality', type=boolean_string, default=False)
+parser.add_argument('--evaluate_per_summary_diversity', type=boolean_string, default=False)
+parser.add_argument('--evaluate_per_source_length', type=boolean_string, default=False)
+parser.add_argument('--evaluate_per_target_ratio', type=boolean_string, default=False)
+parser.add_argument('--evaluate_break_oracle', type=boolean_string, default=False)
+parser.add_argument('--evaluate_ablation_candidates', type=boolean_string, default=False)
 parser.add_argument('--n_ablation_candidates', type=list, default=[0, 1, 3, 5, 10, 15])
-parser.add_argument('--evaluate_without_source', type=bool, default=False)
+parser.add_argument('--evaluate_without_source', type=boolean_string, default=False)
 
 args = parser.parse_args()
 args.generation_methods = args.generation_methods_str.split("+")

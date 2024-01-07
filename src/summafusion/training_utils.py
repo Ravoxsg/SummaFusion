@@ -1,10 +1,8 @@
 import torch
 import numpy as np
-
 from transformers import AdamW, get_linear_schedule_with_warmup
 from transformers import T5TokenizerFast, BartTokenizerFast, PegasusTokenizerFast
 from modeling_bart import BartForConditionalGeneration
-
 
 
 def build_tokenizer(args):

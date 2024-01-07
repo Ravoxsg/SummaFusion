@@ -6,15 +6,12 @@ import sys
 import re
 import numpy as np
 import pickle
-
 sys.path.append("/data/mathieu/SummaFusion/src/") # todo: change to your folder path
-
 from nltk.tokenize import sent_tokenize
 from tqdm import tqdm
 from shutil import copyfile
 
 from common.utils import seed_everything
-
 
 
 parser = argparse.ArgumentParser()
@@ -37,7 +34,6 @@ args.val_size = val_sizes[idx]
 
 print("*"*50)
 print(args)
-
 
 
 def main(args):

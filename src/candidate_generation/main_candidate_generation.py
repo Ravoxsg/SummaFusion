@@ -3,9 +3,7 @@
 import time
 import argparse
 import sys
-
 sys.path.append("/data/mathieu/SummaFusion/src/") # todo: change to your folder path
-
 from common.utils import *
 from common.evaluation import *
 from common.data import load_data
@@ -15,17 +13,16 @@ from engine import *
 from model_utils import *
 
 
-
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--seed', type = int, default = 42)
-parser.add_argument('--cuda', type = bool, default = True)
-parser.add_argument('--debug', type = bool, default = False)
+parser.add_argument('--cuda', type = boolean_string, default = True)
+parser.add_argument('--debug', type = boolean_string, default = False)
 parser.add_argument('--debug_size', type = int, default = 10)
-parser.add_argument('--few_shot', type = bool, default = True)
+parser.add_argument('--few_shot', type = boolean_string, default = True)
 
 # data
-parser.add_argument('--dataset', type=str, default = "samsum",
+parser.add_argument('--dataset', type = str, default = "samsum",
                     choices= ["xsum", "reddit", "samsum"])
 
 # model
@@ -33,7 +30,7 @@ parser.add_argument('--model_type', type = str, default = "pegasus",
                     choices=["pegasus"])
 parser.add_argument('--model', type = str, default = "google/pegasus-large",
                     choices = ["google/pegasus-large", "google/pegasus-xsum"])
-parser.add_argument('--model_name', type=str, default = "pegasus_samsum_train_100_seed_42_1",
+parser.add_argument('--model_name', type = str, default = "pegasus_samsum_train_100_seed_42_1",
                     choices = [
                         # XSum
                         ### full-shot
@@ -84,7 +81,7 @@ parser.add_argument('--model_name', type=str, default = "pegasus_samsum_train_10
 parser.add_argument('--hidden_size', type = int, default = 768) # 768
 parser.add_argument('--cache_dir', type = str,
                     default = "../../../hf_models/pegasus-large/")
-parser.add_argument('--load_model', type = bool, default = True)
+parser.add_argument('--load_model', type = boolean_string, default = True)
 parser.add_argument('--load_model_path', type = str,
                     default = "pegasus_samsum_train_100_seed_42_1+90",
                     choices = [
@@ -136,7 +133,7 @@ parser.add_argument('--load_model_path', type = str,
                     ]) # todo: change to where you saved the finetuned checkpoint
 
 # summary generation
-parser.add_argument('--val_dataset', type=str, default = "val_100_seed_42",
+parser.add_argument('--val_dataset', type = str, default = "val_100_seed_42",
                     choices = [
                         # full-shot
                         "train", "first_half_train_shuffled", "second_half_train_shuffled", "val", "test",
@@ -155,7 +152,7 @@ parser.add_argument('--val_dataset', type=str, default = "val_100_seed_42",
                     ])
 parser.add_argument('--max_val_size', type = int, default = 100000)
 parser.add_argument('--inference_bs', type = int, default = 2) 
-parser.add_argument('--save_summaries', type = bool, default = True)
+parser.add_argument('--save_summaries', type = boolean_string, default = True)
 parser.add_argument('--generation_method', type = str, default = "diverse_beam_search",
                     choices = ["beam_search", "diverse_beam_search", "top_p_sampling", "top_k_sampling"])
 parser.add_argument('--num_return_sequences', type = int, default = 15) # default: 15
@@ -164,14 +161,14 @@ parser.add_argument('--num_beam_groups', type = int, default = 15) # for diverse
 parser.add_argument('--diversity_penalty', type = float, default = 1.0) # for diverse beam search
 parser.add_argument('--top_p', type = float, default = 0.95) # for top-p sampling
 parser.add_argument('--top_k', type = int, default = 50) # for top-k sampling
-parser.add_argument('--stemmer', type = bool, default = True)
+parser.add_argument('--stemmer', type = boolean_string, default = True)
 
 # metrics 
-parser.add_argument('--eval_rouge', type = bool, default = True)
-parser.add_argument('--eval_bertscore', type = bool, default = False)
-parser.add_argument('--eval_bartscore', type = bool, default = False)
-parser.add_argument('--eval_new_ngram', type = bool, default = True)
-parser.add_argument('--eval_rouge_text', type = bool, default = False)
+parser.add_argument('--eval_rouge', type = boolean_string, default = True)
+parser.add_argument('--eval_bertscore', type = boolean_string, default = False)
+parser.add_argument('--eval_bartscore', type = boolean_string, default = False)
+parser.add_argument('--eval_new_ngram', type = boolean_string, default = True)
+parser.add_argument('--eval_rouge_text', type = boolean_string, default = False)
 
 args = parser.parse_args()
 
@@ -194,7 +191,6 @@ args.no_repeat_ngram_size = no_repeat_ngram_sizes[idx]
 
 print("*"*50)
 print(args)
-
 
 
 def main(args):

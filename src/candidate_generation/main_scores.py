@@ -4,9 +4,7 @@ import argparse
 import pickle
 import sys
 import gc
-
 sys.path.append("/data/mathieu/SummaFusion/src/") # todo: change to your folder path
-
 from time import time 
 from nltk.tokenize import sent_tokenize
 from tqdm import tqdm
@@ -19,15 +17,14 @@ from common.bart_score import BARTScorer
 from common.evaluation import overall_eval
 
 
-
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--seed', type = int, default = 42)
 
 # data
-parser.add_argument('--dataset', type=str, default = "samsum",
+parser.add_argument('--dataset', type = str, default = "samsum",
                     choices= ["xsum", "reddit", "samsum"])
-parser.add_argument('--val_dataset', type=str, default = "val_100_seed_42",
+parser.add_argument('--val_dataset', type = str, default = "val_100_seed_42",
                     choices = [
                         # full-shot
                         "train", "first_half_train_shuffled", "second_half_train_shuffled", "val", "test",
@@ -49,7 +46,7 @@ parser.add_argument('--generation_method', type = str, default = "diverse_beam_s
 parser.add_argument('--val_size', type = int, default = -1)
 
 # model
-parser.add_argument('--model_name', type=str, default = "pegasus_samsum_train_100_seed_42_1",
+parser.add_argument('--model_name', type = str, default = "pegasus_samsum_train_100_seed_42_1",
                     choices = [
                         # XSum
                         ### full-shot
@@ -104,19 +101,19 @@ parser.add_argument('--label_metric', type = str, default = "rouge_1",
                     choices = ["mean_rouge", "rouge_1", "rouge_2", "rouge_l", "bertscore", "bartscore"])
 
 # evaluation
-parser.add_argument('--stemmer', type = bool, default = True)
+parser.add_argument('--stemmer', type = boolean_string, default = True)
 
 # export
-parser.add_argument('--save_scores', type = bool, default = True)
+parser.add_argument('--save_scores', type = boolean_string, default = True)
 
 # metrics
-parser.add_argument('--eval_top_candidate', type = bool, default = True)
-parser.add_argument('--eval_oracle', type = bool, default = True)
-parser.add_argument('--eval_rouge', type = bool, default = True)
-parser.add_argument('--eval_bertscore', type = bool, default = False)
-parser.add_argument('--eval_bartscore', type = bool, default = False)
-parser.add_argument('--eval_new_ngram', type = bool, default = False)
-parser.add_argument('--eval_rouge_text', type = bool, default = False)
+parser.add_argument('--eval_top_candidate', type = boolean_string, default = True)
+parser.add_argument('--eval_oracle', type = boolean_string, default = True)
+parser.add_argument('--eval_rouge', type = boolean_string, default = True)
+parser.add_argument('--eval_bertscore', type = boolean_string, default = False)
+parser.add_argument('--eval_bartscore', type = boolean_string, default = False)
+parser.add_argument('--eval_new_ngram', type = boolean_string, default = False)
+parser.add_argument('--eval_rouge_text', type = boolean_string, default = False)
 
 args = parser.parse_args()
 

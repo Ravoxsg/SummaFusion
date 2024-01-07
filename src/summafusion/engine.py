@@ -2,9 +2,7 @@ import gc
 import numpy as np
 import sys
 import torch
-
 sys.path.append("/data/mathieu/2nd_stage_summarization/")
-
 from tqdm import tqdm
 from rouge_score import rouge_scorer
 from sklearn.metrics import roc_auc_score

@@ -9,9 +9,7 @@ import time
 import pickle
 import sys
 import os
-
 sys.path.append("/data/mathieu/SummaFusion/src/")
-
 from torch.utils.data.dataloader import DataLoader
 from transformers import Adafactor, get_linear_schedule_with_warmup
 
@@ -24,91 +22,90 @@ from model import ModelAbstractiveFusion
 from engine import training_loop
 
 
-
 parser = argparse.ArgumentParser()
 
 root = "/data/mathieu/"
 
-parser.add_argument('--seed', type=int, default = 42)
-parser.add_argument('--cuda', type=bool, default = True)
-parser.add_argument('--fp16', type=bool, default = True)
-parser.add_argument('--local_rank', type=int, default = 0)
-parser.add_argument('--debug', type = bool, default = False)
-parser.add_argument('--few_shot', type = bool, default = True)
+parser.add_argument('--seed', type = int, default = 42)
+parser.add_argument('--cuda', type = boolean_string, default = True)
+parser.add_argument('--fp16', type = boolean_string, default = True)
+parser.add_argument('--local_rank', type = int, default = 0)
+parser.add_argument('--debug', type = boolean_string, default = False)
+parser.add_argument('--few_shot', type = boolean_string, default = True)
 few_shot_size = 100
 few_shot_seed = 42
-parser.add_argument('--few_shot_size', type=int, default = few_shot_size)
-parser.add_argument('--few_shot_seed', type=int, default = few_shot_seed)
+parser.add_argument('--few_shot_size', type = int, default = few_shot_size)
+parser.add_argument('--few_shot_seed', type = int, default = few_shot_seed)
 
 # data
-parser.add_argument('--dataset', type=str, default = "samsum")
+parser.add_argument('--dataset', type = str, default = "samsum")
 parser.add_argument('--generation_methods_str', type = str, default = "diverse_beam_search")
-parser.add_argument('--scoring_methods_str', type=str, default = "rouge_1+rouge_2+rouge_l")
-parser.add_argument('--sep_symbol', type=str, default = "[SEP]")
+parser.add_argument('--scoring_methods_str', type = str, default = "rouge_1+rouge_2+rouge_l")
+parser.add_argument('--sep_symbol', type = str, default = "[SEP]")
 # train
-parser.add_argument('--max_train_size', type=int, default = 1000000) # [287113, 204045, 33704]
+parser.add_argument('--max_train_size', type = int, default = 1000000) # [287113, 204045, 33704]
 # val
-parser.add_argument('--val_dataset', type=str, default="few_shot_default_val",
+parser.add_argument('--val_dataset', type = str, default="few_shot_default_val",
                     choices=["val", "few_shot_default_val"])
-parser.add_argument('--max_val_size', type=int, default = 1000000) # in [13368, 11332, 4213]
-parser.add_argument("--check_training_data", type = bool, default = True)
+parser.add_argument('--max_val_size', type = int, default = 1000000) # in [13368, 11332, 4213]
+parser.add_argument("--check_training_data", type = boolean_string, default = True)
 # base model
-parser.add_argument('--base_model_name', type=str, default = "pegasus")
-parser.add_argument('--num_beams', type=int, default = 15)
+parser.add_argument('--base_model_name', type = str, default = "pegasus")
+parser.add_argument('--num_beams', type = int, default = 15)
 
 # training
 # input
-parser.add_argument('--max_source_length', type=int, default = 1024)
-parser.add_argument('--n_candidates', type=int, default = 15)
-parser.add_argument('--use_source', type=bool, default = True) 
-parser.add_argument('--use_candidates', type=bool, default = True) 
+parser.add_argument('--max_source_length', type = int, default = 1024)
+parser.add_argument('--n_candidates', type = int, default = 15)
+parser.add_argument('--use_source', type = boolean_string, default = True)
+parser.add_argument('--use_candidates', type = boolean_string, default = True)
 # ordering
-parser.add_argument('--encode_position', type = bool, default = True)
-parser.add_argument('--full_position_encoding', type = bool, default = False)
-parser.add_argument('--position_symbol', type=str, default = "CAND_")
-parser.add_argument('--encode_generation_method', type=bool, default = False)
+parser.add_argument('--encode_position', type = boolean_string, default = True)
+parser.add_argument('--full_position_encoding', type = boolean_string, default = False)
+parser.add_argument('--position_symbol', type = str, default = "CAND_")
+parser.add_argument('--encode_generation_method', type = boolean_string, default = False)
 # subsetting
-parser.add_argument('--n_candidates_to_use', type=int, default = 15)
+parser.add_argument('--n_candidates_to_use', type = int, default = 15)
 # subsampling
-parser.add_argument('--source_dropout', type=bool, default = True)
-parser.add_argument('--source_dropout_prob', type=float, default = 0.2)
-parser.add_argument('--source_dropout_at_inference', type=bool, default = False)
-parser.add_argument('--n_subsample_low', type=int, default = 2)
-parser.add_argument('--n_subsample_high', type=int, default = 15)
-parser.add_argument('--subsample_at_inference', type=bool, default = False)
+parser.add_argument('--source_dropout', type = boolean_string, default = True)
+parser.add_argument('--source_dropout_prob', type = float, default = 0.2)
+parser.add_argument('--source_dropout_at_inference', type = boolean_string, default = False)
+parser.add_argument('--n_subsample_low', type = int, default = 2)
+parser.add_argument('--n_subsample_high', type = int, default = 15)
+parser.add_argument('--subsample_at_inference', type = boolean_string, default = False)
 # shuffling
-parser.add_argument('--shuffle_candidates', type=bool, default = False)
+parser.add_argument('--shuffle_candidates', type = boolean_string, default = False)
 
 # fusion model
 # general
-parser.add_argument('--model', type=str, default = "facebook/bart-large")
-parser.add_argument('--cache_dir', type=str, default = root + "hf_models/bart-large/")
-parser.add_argument('--hidden_size', type=int, default = 1024) # 768 / 1024
+parser.add_argument('--model', type = str, default = "facebook/bart-large")
+parser.add_argument('--cache_dir', type = str, default = root + "hf_models/bart-large/")
+parser.add_argument('--hidden_size', type = int, default = 1024) # 768 / 1024
 # classification
-parser.add_argument('--classify_candidates', type = bool, default = True)
+parser.add_argument('--classify_candidates', type = boolean_string, default = True)
 parser.add_argument('--cls_loss_weight', type = float, default = 1.0)
 parser.add_argument('--cls_hidden_size', type = int, default = 2048)
 parser.add_argument('--cand_subsampling_method', type = str, default = "")
-parser.add_argument('--subsample_cls_cands', type = bool, default = True)
+parser.add_argument('--subsample_cls_cands', type = boolean_string, default = True)
 parser.add_argument('--n_subsample_cls_neg', type = int, default = 1)
-parser.add_argument('--use_source_for_cls', type = bool, default = True)
-parser.add_argument('--use_ss_for_cls', type = bool, default = False)
+parser.add_argument('--use_source_for_cls', type = boolean_string, default = True)
+parser.add_argument('--use_ss_for_cls', type = boolean_string, default = False)
 
 # optimization
-parser.add_argument('--shuffle_train', type=bool, default = True)
-parser.add_argument('--n_epochs', type=int, default = 5)
-parser.add_argument('--adafactor', type=bool, default = False)
-parser.add_argument('--train_bs', type=int, default = 2)
-parser.add_argument('--inference_bs', type=int, default = 2) # 2 for large, 4 for base
-parser.add_argument('--gradient_accumulation_steps', type=int, default = 32) # use effective_batch_size = 64
-parser.add_argument('--lr', type=float, default = 2e-5)
-parser.add_argument('--wd', type=float, default = 0)
-parser.add_argument('--gradient_clipping', type=float, default = 10e10)
-parser.add_argument('--scheduler', type=str, default = "constant")  # in ["constant", "linear"]
-parser.add_argument('--warmup_ratio', type=float, default = 0.05)
-parser.add_argument('--early_stopping_metric', type=str, default = "mean_r") # in ["mean_r", "r1", "r2", "rl"]
+parser.add_argument('--shuffle_train', type = boolean_string, default = True)
+parser.add_argument('--n_epochs', type = int, default = 5)
+parser.add_argument('--adafactor', type = boolean_string, default = False)
+parser.add_argument('--train_bs', type = int, default = 2)
+parser.add_argument('--inference_bs', type = int, default = 2) # 2 for large, 4 for base
+parser.add_argument('--gradient_accumulation_steps', type = int, default = 32) # use effective_batch_size = 64
+parser.add_argument('--lr', type = float, default = 2e-5)
+parser.add_argument('--wd', type = float, default = 0)
+parser.add_argument('--gradient_clipping', type = float, default = 10e10)
+parser.add_argument('--scheduler', type = str, default = "constant")  # in ["constant", "linear"]
+parser.add_argument('--warmup_ratio', type = float, default = 0.05)
+parser.add_argument('--early_stopping_metric', type = str, default = "mean_r") # in ["mean_r", "r1", "r2", "rl"]
 parser.add_argument('--print_every', type = int, default = 100)
-parser.add_argument('--eval_per_epoch', type = bool, default = False)
+parser.add_argument('--eval_per_epoch', type = boolean_string, default = False)
 
 # summary generation
 parser.add_argument('--num_return_sequences', type = int, default = 1)
@@ -117,13 +114,13 @@ parser.add_argument('--repetition_penalty', type = float, default = 1.0)
 parser.add_argument('--length_penalty', type = float, default = 1.0)
 
 # evaluation
-parser.add_argument('--eval_epoch_0', type = bool, default = False)
-parser.add_argument('--stemmer', type = bool, default = True)
+parser.add_argument('--eval_epoch_0', type = boolean_string, default = False)
+parser.add_argument('--stemmer', type = boolean_string, default = True)
 
 # export
-parser.add_argument('--save_model', type = bool, default = True)
+parser.add_argument('--save_model', type = boolean_string, default = True)
 parser.add_argument('--save_model_path', type = str, default = "saved_models/samsum_few_shot/few_shot_100_seed_42/".format(few_shot_size, few_shot_seed))
-parser.add_argument('--load_model', type = bool, default = False)
+parser.add_argument('--load_model', type = boolean_string, default = False)
 parser.add_argument('--load_model_path', type = str, default = "")
 
 args = parser.parse_args()
@@ -194,7 +191,6 @@ if args.few_shot:
 
 print("*" * 50)
 print(args)
-
 
 
 def main(args):

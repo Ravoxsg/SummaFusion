@@ -3,7 +3,6 @@ import torch.nn as nn
 import numpy as np
 
 
-
 class ModelAbstractiveFusion(nn.Module):
     def __init__(self, model, tokenizer, args):
         super(ModelAbstractiveFusion, self).__init__()

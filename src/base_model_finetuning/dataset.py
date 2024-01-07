@@ -2,7 +2,6 @@ import numpy as np
 import torch
 
 
-
 class TrainFTDataset:
     def __init__(self, mode, tokenizer, texts, summaries, args):
         self.mode = mode
@@ -40,9 +39,7 @@ class TrainFTDataset:
 
 
 class InferenceFTDataset:
-
     def __init__(self, set, tokenizer, texts, summaries, args):
-
         self.set = set
         self.tokenizer = tokenizer
         self.texts = texts
@@ -52,7 +49,6 @@ class InferenceFTDataset:
         print("Dataset has {} points".format(len(self.texts)))
 
     def __len__(self):
-
         return len(self.texts)
 
     def __getitem__(self, item):

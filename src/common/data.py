@@ -3,7 +3,6 @@ import os
 from tqdm import tqdm
 
 
-
 def load_data(set, args):
     text_files, summary_files = prepare_data_files(set, args)
     texts, summaries = read_data_files(text_files, summary_files)

@@ -1,13 +1,10 @@
 import torch
 import torch.nn as nn
 import numpy as np
-
 from time import time
 
 
-
 class FTModel(nn.Module):
-
     def __init__(self, pretrained_model, args):
 
         super(FTModel, self).__init__()
@@ -16,7 +13,6 @@ class FTModel(nn.Module):
         self.args = args
 
     def forward(self, input_ids, attention_mask, labels):
-
         output = self.pretrained_model(
             input_ids=input_ids, attention_mask=attention_mask, labels=labels, output_hidden_states=True
         )

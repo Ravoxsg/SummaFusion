@@ -8,9 +8,7 @@ import operator
 import re
 import json
 import torch.nn as nn
-
 sys.path.append("/data/mathieu/SummaFusion/src/")
-
 from nltk.tokenize import word_tokenize
 from tqdm import tqdm
 from rouge_score import rouge_scorer
@@ -26,7 +24,6 @@ from common.data_scored import load_data
 from dataset import AbstractiveFusionDataset
 from training_utils import *
 from engine import validate
-
 
 
 # for 1
